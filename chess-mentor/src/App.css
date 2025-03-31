@@ -4,8 +4,8 @@
 div.flex-board{
   display: flex;
   flex-wrap: wrap;
-  width: 500px;
-  height: 500px;
+  width: 35vw;
+  height: 35vw;
   border: 3px solid black;
   justify-content: center;
   align-items: center;
@@ -13,9 +13,25 @@ div.flex-board{
 }
 
 div.square{
+  display: flex;
   width: calc(100% / 8);
   height: calc(100% / 8);
   text-align: center;
   border: 1px solid grey;
-  padding: 15px;
+  align-items: center;
+  justify-content: center;
+}
+
+div.square[row="0"]:nth-child(odd){
+  background-color: #f0d9b5;
+}
+div.square[row="0"]:nth-child(even){
+  background-color: #b58863;
+}
+
+div.square[row="1"]:nth-child(even){
+  background-color: #f0d9b5;
+}
+div.square[row="1"]:nth-child(odd){
+  background-color: #b58863;
 }

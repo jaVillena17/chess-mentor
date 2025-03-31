@@ -11,15 +11,27 @@ const initialBoard = [
     ["t","h","b","q","k","b","h","t"]
 ];
 
+const coordinates = ["h","g","f","e","d","c","b","a"];
+
+function calcCoordinatesbyIndex(index, indice){
+    const x = indice;
+    const xCoord = coordinates[x]
+    const y = index%8 + 1 
+
+    return xCoord + "" + y
+}
+
 export const Board = () =>{
     return (
-        <div class="flex-board">
-            {initialBoard.map(row => {
+        <div className="flex-board">
+            {initialBoard.map((row, rowIndex) => {
                 return (
-                    row.map((piece, index) =>  (
+                    row.map((piece, colIndex) =>  (
                             <Square 
-                                key={index}
-                                piece={piece} 
+                                key={`${rowIndex}, ${colIndex}`}
+                                index={calcCoordinatesbyIndex(colIndex, rowIndex)}
+                                piece={piece}
+                                row={rowIndex%2}
                             />)
                     )
             )})}

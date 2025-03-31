@@ -1,8 +1,7 @@
-export const Square = ({piece}) => {
-    console.log(piece)
+export const Square = ({index, piece, row}) => {
     return (
-        <div class="square">
-            {piece}
+        <div className="square" id={`${index}`} row={`${row}`}>
+           {piece != 0 && piece} 
         </div>
     )
 }
