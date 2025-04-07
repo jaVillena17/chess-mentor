@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Square } from "./square";
 
 const initialBoard = [
-    ["t","h","b","q","k","b","h","t"],
-    ["p","p","p","p","p","p","p","p"],
+    ["Tb","Hb","Bb","Qb","Kb","Bb","Hb","Tb"],
+    ["Pb","Pb","Pb","Pb","Pb","Pb","Pb","Pb"],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    ["p","p","p","p","p","p","p","p"],
-    ["t","h","b","q","k","b","h","t"]
+    ["Pw","Pw","Pw","Pw","Pw","Pw","Pw","Pw"],
+    ["Tw","Hw","Bw","Qw","Kw","Bw","Hw","Tw"]
 ];
 
 const coordinates = ["h","g","f","e","d","c","b","a"];
@@ -17,7 +17,7 @@ const coordinates = ["h","g","f","e","d","c","b","a"];
 function calcCoordinatesbyIndex(index, indice){
     const x = indice;
     const xCoord = coordinates[x]
-    const y = index%8 + 1 
+    const y = index%8 + 1;
 
     return xCoord + "" + y
 }
@@ -68,10 +68,15 @@ export const Board = () =>{
             })
 
             newBoard.push(newRow)
+
+            //Eliminamos la última pieza de la memoria
+            setDraggedPiece(null)
         })
 
         setBoard(newBoard)
     }
+
+    // TODO : Añadir las imágenes, evitar que una pieza se elimine al dropearse sobre si misma, hacer que el draggear la pieza desapareza de su celda y se mueva
     
 
 
