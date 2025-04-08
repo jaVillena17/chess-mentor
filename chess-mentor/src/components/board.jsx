@@ -40,10 +40,13 @@ export const Board = () =>{
     const [validMoves, setValidMoves] = useState([])
 
     const handleDragStart = (coord, piece) => {
+        //Creamos el objeto con los datos guardados de la pieza a mover
         setDraggedPiece({
             coordinates : coord,
             piece: piece
         })     
+
+        //Sacamos esa pieza del array o la ocultamos
     }
 
     const handleOnDrop = (coord) => {
