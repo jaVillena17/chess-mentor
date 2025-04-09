@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Square } from "./square";
+import '../static/css/board.css'
 
 const initialBoard = [
     ["Tb","Hb","Bb","Qb","Kb","Bb","Hb","Tb"],

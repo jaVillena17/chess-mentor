@@ -1,15 +1,16 @@
-import './App.css'
 import { Board } from './components/board'
 import { Chatbox } from './components/chatbox'
 
-function App() {
+export const App = () => {
 
   return (
     <>
-      <Board />
-      <Chatbox />
+      <main class="game">
+        <Board />
+        <Chatbox />
+      </main>
+
     </>
   )
 }
 
-export default App

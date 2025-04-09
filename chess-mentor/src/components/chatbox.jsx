@@ -1,3 +1,5 @@
+import '../static/css/chatbox.css'
+
 export const Chatbox = () => {
     return (
         //Después esto hay que separarlo en más componentes
