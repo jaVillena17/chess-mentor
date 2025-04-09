@@ -6,6 +6,7 @@ export const App = () => {
   return (
     <>
       <main class="game">
+        <GameHeader />
         <Board />
         <Chatbox />
       </main>
