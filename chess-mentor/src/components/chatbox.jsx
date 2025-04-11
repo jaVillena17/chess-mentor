@@ -6,10 +6,11 @@ export const Chatbox = () => {
         //Decidir si pongo aquí la imagen del usuario con el chat o lo pongo en cada mensaje
         <div className="chatbox">
             
-            <div className="chatHeader"></div>
+            <div className="chat-header"></div>
             <div className="chat-display"></div>
             <hr className="chatbox-separator"/>
-            <input type="text" className="send-msg-input"/>
+            <textarea className="send-msg-input" placeholder='Escribe un mensaje'/>
+            <button className='chat-button'>Enviar</button>
         </div>
     )
 }

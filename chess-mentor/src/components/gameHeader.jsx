@@ -1,7 +1,9 @@
+import '../static/css/gameheader.css'
+
 export const GameHeader = () => {
     return (
-        <div class="gameHeader">
+        <div className="gameHeader">
 
         </div>
     )
-}
+}   

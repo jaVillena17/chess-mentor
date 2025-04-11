@@ -1,0 +1,10 @@
+footer{
+    display: inline-block;
+    position: fixed;
+    right:  0;
+    bottom: 0;
+    margin-right: 0px;
+    width: 85vw;
+    height: 4vh;
+    background-color: rgb(59, 59, 59);
+}

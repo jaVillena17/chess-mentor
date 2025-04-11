@@ -1,0 +1,7 @@
+nav.header-nav{
+    width: 15vw;
+    height: 100vh;
+    border: 2px solid black;
+    float: left;
+    background-color: #3A015C;
+}
