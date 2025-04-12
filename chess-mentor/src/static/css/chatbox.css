@@ -14,6 +14,7 @@ main.game{
     justify-content: center;
     align-items: center;
     margin-left: 30px;
+    border: none;
 }
 
 main div.chatbox, div.flex-board{
@@ -28,9 +29,9 @@ body{
 div.chatbox{
     height: 35vw;
     width: 40%;
-    border: 1px solid blue;
+    border: 1px solid #8b7925;
     border-radius: 25px;
-    background-color: #B594B6;
+    background-color: #2b2a2a;
     padding: 0px 20px;
 }
 
@@ -47,18 +48,28 @@ hr{
     clear: both;
 }
 button.chat-button{
-    background-color: #3A015C;
-    color:  #fff;
+    background-color:  rgb(59, 59, 59);
+    color:   #8b7925;
+    border: 1px solid #8b7925;
     margin-top: 10px;
     float: right;
+    font-weight: bold;
 }
+
+button.chat-button:hover{
+    border: 1px solid #8b7925;
+    background-color: #8b7925;
+    color: #fff;
+}
+
+
 
 textarea.send-msg-input{
     display: inline-block;
     background-color: transparent;
-    width: 85%;
+    width: 83%;
     height: 10%;
-    color: black;
+    color: #fff;
     border: none;
     font-weight: bold;
     resize: none;
@@ -69,5 +80,5 @@ textarea.send-msg-input:focus{
 }
 
 textarea.send-msg-input::placeholder{
-    color: black;
+    color: #fff;
 }

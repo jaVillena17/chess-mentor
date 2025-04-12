@@ -1,4 +1,4 @@
-export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, validMoves}) => {
+export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDragEnd, draggedPiece,  validMoves}) => {
     
     const pieceImages = {
         "Tb": "assets/Pieces/Chess_rdt45.svg",
@@ -26,9 +26,13 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, vali
         onDrop(index)
     }
 
+    const handleDragEnd = () => {
+        onDragEnd()
+    }
+
     return (
         <div className="square" id={`${index}`} row={`${row}`} onDrop={handleDrop} onDragOver={onDragOver}>
-           {piece != 0 && <img src={pieceImages[piece]} draggable="true" onDragStart={handleDragStart} />}
+           {piece != 0 && <img src={pieceImages[piece]} draggable="true" onDragStart={handleDragStart} onDragEnd={handleDragEnd} />}
         </div>
     )
 }

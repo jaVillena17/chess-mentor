@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Square } from "./square";
 import '../static/css/board.css'
 
@@ -35,11 +35,13 @@ function translateCoordinates(coord){
 
 
 
-export const Board = () =>{
+export const Board = () => {
+    
+    let dragCompleted = useRef(false);
+    let destinyPos = useRef("")
     const [board, setBoard] = useState(initialBoard)
     const [draggedPiece, setDraggedPiece] = useState(null)
     const [validMoves, setValidMoves] = useState([])
-
     const handleDragStart = (coord, piece) => {
         //Creamos el objeto con los datos guardados de la pieza a mover
         setDraggedPiece({
@@ -47,37 +49,53 @@ export const Board = () =>{
             piece: piece
         })     
 
-        //Sacamos esa pieza del array o la ocultamos
     }
 
-    const handleOnDrop = (coord) => {
-        let initialDraggedPosition = translateCoordinates(draggedPiece.coordinates)
-        let destinyPosition = translateCoordinates(coord)
+    const handleOnDrop = (index) => {
+        dragCompleted.current = true
+        destinyPos.current = translateCoordinates(index)
+    }
 
-        let newBoard = [];
-        //Copiamos vamos copiando los valores en el nuevo board
-        board.forEach((row, indexX) => {
-            let newRow = []
+    const handleDragEnd = () => {
+        if(dragCompleted.current){
+            
+            let initialDraggedPosition = translateCoordinates(draggedPiece.coordinates)
+            console.log(initialDraggedPosition)
+            console.log(destinyPos.current)
+            let newBoard = [];
+            //Copiamos vamos copiando los valores en el nuevo board
+            board.forEach((row, indexX) => {
+                let newRow = []
 
-            row.forEach((_, indexY) => {
+                row.forEach((_, indexY) => {
 
 
-                if(indexX == initialDraggedPosition.X && indexY == initialDraggedPosition.Y){
-                    newRow.push(0)
-                }else if ((indexX == destinyPosition.X && indexY == destinyPosition.Y)){
-                    newRow.push(draggedPiece.piece)
-                }else{
-                    newRow.push(board[indexX][indexY])
-                }
+                    if(indexX == initialDraggedPosition.X && indexY == initialDraggedPosition.Y){
+                        newRow.push(0)
+                    }else if ((indexX == destinyPos.current.X && indexY == destinyPos.current.Y)){
+                        newRow.push(draggedPiece.piece)
+                    }else{
+                        newRow.push(board[indexX][indexY])
+                    }
+                })
+
+                newBoard.push(newRow)
+                
             })
-
-            newBoard.push(newRow)
-
+            console.log(newBoard)
             //Eliminamos la última pieza de la memoria
             setDraggedPiece(null)
-        })
+            dragCompleted.current = false
 
-        setBoard(newBoard)
+            setBoard(newBoard)
+            
+        }else{
+            let newBoard = [...board]
+            let  coordInit = translateCoordinates(draggedPiece.coordinates)
+            newBoard[coordInit.X][coordInit.Y] = draggedPiece.piece 
+            setBoard(newBoard)
+        }
+        
     }
 
     // TODO : Añadir las imágenes, evitar que una pieza se elimine al dropearse sobre si misma, hacer que el draggear la pieza desapareza de su celda y se mueva
@@ -99,6 +117,8 @@ export const Board = () =>{
                                 onDrop = {handleOnDrop}
                                 onDragStart = {handleDragStart}
                                 onDragOver = {(e) => e.preventDefault()}
+                                onDragEnd = {handleDragEnd}
+                                draggedPiece = {draggedPiece}
                                 validMoves = {validMoves}
                             />)
                     )
