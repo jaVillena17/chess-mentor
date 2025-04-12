@@ -19,7 +19,6 @@ function calcCoordinatesbyIndex(index, indice){
     const x = indice;
     const xCoord = coordinates[x]
     const y = index%8 + 1;
-
     return xCoord + "" + y
 }
 
@@ -40,7 +39,7 @@ export const Board = () => {
     let dragCompleted = useRef(false);
     let destinyPos = useRef("")
     const [board, setBoard] = useState(initialBoard)
-    const [draggedPiece, setDraggedPiece] = useState(null)
+    const [draggedPiece, setDraggedPiece] = useState({coordinates: null, piece: null})
     const [validMoves, setValidMoves] = useState([])
     const handleDragStart = (coord, piece) => {
         //Creamos el objeto con los datos guardados de la pieza a mover
@@ -48,6 +47,8 @@ export const Board = () => {
             coordinates : coord,
             piece: piece
         })     
+
+        //console.log(calcCoordinatesbyIndex(draggedPiece.coordinates))
 
     }
 
@@ -84,7 +85,7 @@ export const Board = () => {
             })
             console.log(newBoard)
             //Eliminamos la última pieza de la memoria
-            setDraggedPiece(null)
+            setDraggedPiece({coordinates: null, piece: null})
             dragCompleted.current = false
 
             setBoard(newBoard)
@@ -103,7 +104,7 @@ export const Board = () => {
 
 
                 
-                
+    //console.log(calcCoordinatesbyIndex(draggedPiece.coordinates))     
     return (
         <div className="flex-board">
             {board.map((row, rowIndex) => {
@@ -118,7 +119,7 @@ export const Board = () => {
                                 onDragStart = {handleDragStart}
                                 onDragOver = {(e) => e.preventDefault()}
                                 onDragEnd = {handleDragEnd}
-                                draggedPiece = {draggedPiece}
+                                draggedPiece = {draggedPiece.coordinates}
                                 validMoves = {validMoves}
                             />)
                     )
