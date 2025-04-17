@@ -37,6 +37,6 @@ div.square[row="1"]:nth-child(odd){
   background-color: #b58863;
 }
 
-div.display-none{
+.display-none{
   opacity: 0;
 }

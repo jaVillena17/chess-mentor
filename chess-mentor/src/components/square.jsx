@@ -27,6 +27,7 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
     }
 
     const handleDragEnd = () => {
+        console.log("asdfsdf")
         onDragEnd()
     }
     if(index === draggedPiece){
@@ -35,8 +36,15 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
     
     return (
         <div className="square" id={`${index}`} row={`${row}`} onDrop={handleDrop} onDragOver={onDragOver}>
-           {piece != 0 && index != draggedPiece && <img src={pieceImages[piece]} draggable="true" onDragStart={handleDragStart} onDragEnd={handleDragEnd} />}
-           {piece != 0 && index == draggedPiece && <img src={pieceImages[piece]} draggable="true" onDragStart={handleDragStart} onDragEnd={handleDragEnd}/>}
+           {piece != 0 && 
+                <img 
+                    src={pieceImages[piece]} 
+                    draggable="true"
+                    className={index == draggedPiece ? "display-none" : ""} 
+                    onDragStart={handleDragStart} 
+                    onDragEnd={handleDragEnd} 
+                />}
         </div>
+        
     )
 }

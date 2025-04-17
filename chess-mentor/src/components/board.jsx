@@ -32,6 +32,30 @@ function translateCoordinates(coord){
     })
 }
 
+function calcMoves(piece, board){
+    let options = []
+
+    let pieceType = piece.piece.substring(0,1)
+    let pieceColor = piece.piece.substring(1)
+    
+
+    switch (pieceType){
+        case "P":
+            calcMovesPawn(translateCoordinates(piece.coordinates), pieceColor, board)
+            break
+        default:
+            console.log("ERROR")
+            break
+    }
+
+    return options
+
+}
+
+function calcMovesPawn(position, color, board){
+    
+}
+
 
 
 export const Board = () => {
@@ -43,12 +67,15 @@ export const Board = () => {
     const [validMoves, setValidMoves] = useState([])
     const handleDragStart = (coord, piece) => {
         //Creamos el objeto con los datos guardados de la pieza a mover
-        setDraggedPiece({
-            coordinates : coord,
-            piece: piece
-        })     
+        setTimeout(() => {
+            setDraggedPiece({
+                coordinates: coord,
+                piece: piece
+            });
+        }, 0);    
 
-        //console.log(calcCoordinatesbyIndex(draggedPiece.coordinates))
+       
+        setValidMoves(calcMoves(draggedPiece, board))
 
     }
 
