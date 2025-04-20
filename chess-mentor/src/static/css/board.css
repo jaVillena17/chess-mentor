@@ -23,6 +23,10 @@ div.square{
   justify-content: center;
 }
 
+div.square img{
+  width: 90%;
+}
+
 div.square[row="0"]:nth-child(odd){
   background-color: #f0d9b5;
 }
@@ -39,4 +43,8 @@ div.square[row="1"]:nth-child(odd){
 
 .display-none{
   opacity: 0;
+}
+
+div.valid-move{
+  border: 2px solid yellow;
 }

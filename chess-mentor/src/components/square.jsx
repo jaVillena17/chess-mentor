@@ -23,19 +23,19 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
 
     const handleDrop = (e) => {
         e.preventDefault()
-        onDrop(index)
+        if(validMoves.includes(index)) onDrop(index)
     }
 
     const handleDragEnd = () => {
-        console.log("asdfsdf")
         onDragEnd()
     }
-    if(index === draggedPiece){
-        console.log("TRUE")
-    }
+
+    let validMvClass = validMoves.includes(index) ? " valid-move" : ""
     
+    const SquareClasses = `square${validMvClass}`
+
     return (
-        <div className="square" id={`${index}`} row={`${row}`} onDrop={handleDrop} onDragOver={onDragOver}>
+        <div className={SquareClasses} id={`${index}`} row={`${row}`} onDrop={handleDrop} onDragOver={onDragOver}>
            {piece != 0 && 
                 <img 
                     src={pieceImages[piece]} 
