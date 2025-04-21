@@ -55,6 +55,8 @@ function calcMoves(piece, board){
 
 function pawnMoves(position, color, board){
 
+    
+
      let x = color == "w" ? position.X - 1 :  position.X + 1
      let y = position.Y
     
