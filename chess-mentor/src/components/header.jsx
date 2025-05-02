@@ -1,12 +1,16 @@
 import '../static/css/header.css'
 import { Link } from 'react-router-dom'
 
-const views = ["Inicio", "Jugar", "Social", "FaQ", "Quienés Sómos","Iniciar Sesión"]
+const views = ["Inicio", "Game", "Social", "FaQ", "Quienés Sómos","Login"]
 
 export const Header = () => {
     return (
         <nav className="header-nav">
-            <img src="/assets/logo.png" alt="Logo" />
+            <div>
+                <img src="/assets/logo-nipa.png" alt="Logo" /><br />
+                <span className='logoName'>Chess - Mentor</span>
+            </div>
+            
             {views.map((link) => {
                 return (
                     <Link to={`/${link}`} key={link}>{link}</Link>

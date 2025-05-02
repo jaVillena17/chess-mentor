@@ -10,7 +10,19 @@ nav.header-nav{
 }
 
 nav.header-nav img{
-    width: 40%;
+    width: 100%;
+}
+
+nav.header-nav div{
+    width: 50%;
+}
+
+nav.header-nav div span{
+    display: block;
+    font-family: Playfair Display;
+    color: #8b7925;
+    font-weight: bold;
+    text-align: center;
 }
 
 nav.header-nav a{

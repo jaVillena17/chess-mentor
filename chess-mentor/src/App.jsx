@@ -1,23 +1,26 @@
-import { Board } from './components/board'
-import { Chatbox } from './components/chatbox'
-import { GameHeader } from './components/gameHeader'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { Game } from './components/game'
+import { Login } from './components/login'
 import { Header } from './components/header'
 import { Footer } from './components/footer'
 
 export const App = () => {
 
   return (
-    <>
-      <Header />
-      <main className="game">
-        <GameHeader />
-        <Board />
-        <Chatbox />
-      </main>
+    <Router>
 
+      <Header />
+
+        <Routes>
+          
+          <Route path="/game" element={<Game />} />
+          <Route path="/login" element={<Login />} />
+
+        </Routes>
+  
       <Footer />
 
-    </>
+    </Router>
   )
 }
 
