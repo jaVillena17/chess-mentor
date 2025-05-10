@@ -41,6 +41,7 @@ div.chatbox div.chat-header{
 
 div.chatbox div.chat-display{
     height: 80%;
+    position: relative;
 }
 
 
@@ -81,4 +82,21 @@ textarea.send-msg-input:focus{
 
 textarea.send-msg-input::placeholder{
     color: #fff;
+}
+
+
+div.chat-display span.user-msg{
+    float: right;
+    clear: both;
+}
+
+div.chat-display  p{
+    padding: 7px 5px;
+    border-radius: 10px;
+    background-color: #8b7925;
+}
+
+div.chat-display span.llama-msg{
+    float: left;
+    clear: both;
 }

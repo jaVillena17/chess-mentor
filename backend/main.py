@@ -25,7 +25,7 @@ async def get_curso():
 async def get_user():
     return user
 
-@app.get('/chatbox-msg')
+@app.post('/chatbox-msg')
 async def chatbox_msg():
     url = "http://localhost:11434/api/chat"
 
