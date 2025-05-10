@@ -24,7 +24,7 @@ export const Chatbox = () => {
 
         fetch("http://127.0.0.1:8000/chatbox-msg", {
             method : "POST",
-            body : {"message": lastMsg},
+            body : {"messages": chat},
             headers: { "Content-Type": "application/json" }
         })
         .then(res => res.json)
