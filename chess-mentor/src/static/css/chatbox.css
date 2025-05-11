@@ -88,15 +88,48 @@ textarea.send-msg-input::placeholder{
 div.chat-display span.user-msg{
     float: right;
     clear: both;
+    max-width: 70%;
+}
+div.chat-display{
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+    padding: 10px;
 }
 
 div.chat-display  p{
     padding: 7px 5px;
     border-radius: 10px;
     background-color: #8b7925;
+    word-break: break-word;
 }
 
 div.chat-display span.llama-msg{
     float: left;
     clear: both;
+    max-width: 70%;
+}
+
+div.chat-display::-webkit-scrollbar {
+  width: 6px;
+}
+
+div.chat-display::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+div.chat-display::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Hover para dar feedback sutil */
+div.chat-display::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+div.chat-display {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }

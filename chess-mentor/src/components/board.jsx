@@ -1,17 +1,8 @@
 import { useState, useRef } from "react";
 import { Square } from "./square";
 import '../static/css/board.css'
+import { useBoardStore } from "../logic/boardGlobalState";
 
-const initialBoard = [
-    ["Tb","Hb","Bb","Qb","Kb","Bb","Hb","Tb"],
-    ["Pb","Pb","Pb","Pb","Pb","Pb","Pb","Pb"],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    ["Pw","Pw","Pw","Pw","Pw","Pw","Pw","Pw"],
-    ["Tw","Hw","Bw","Qw","Kw","Bw","Hw","Tw"]
-];
 
 const coordinates = ["h","g","f","e","d","c","b","a"];
 
@@ -76,7 +67,9 @@ export const Board = () => {
     
     let dragCompleted = useRef(false);
     let destinyPos = useRef("")
-    const [board, setBoard] = useState(initialBoard)
+    //const [board, setBoard] = useState(initialBoard)
+    const board = useBoardStore((state) => state.board)
+    const setBoard = useBoardStore((state) => state.setBoard)
     const [draggedPiece, setDraggedPiece] = useState({coordinates: null, piece: null})
     const [validMoves, setValidMoves] = useState([])
 

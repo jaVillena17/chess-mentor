@@ -8,7 +8,7 @@ export const ChatMessages = ({chat}) => {
                     return <Message 
                                 key = {index}
                                 timestamp = {input}
-                                from = {chat[input].from}
+                                from = {chat[input].from_}
                                 inputMsg = {chat[input].text}
                            />
                 })

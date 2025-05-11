@@ -2,15 +2,12 @@ import { useEffect, useState } from 'react'
 import '../static/css/chatbox.css'
 import { ChatMessages } from './chat-messages'
 import { ChatboxSend } from './chatbox-send'
+import { useBoardStore } from '../logic/boardGlobalState'
 
 export const Chatbox = () => {
-    let [chat, setChat] = useState({
-       "14:30" :    {"from" : "user",
-                    "text" : "user"},
+    let [chat, setChat] = useState({})
 
-        "14:31" : { "from" :"llama",
-                    "text" : "llama"},
-    })
+    const board = useBoardStore((state) => state.board)
 
     const [lastMsg, setLastMsg] = useState("")
         
@@ -18,19 +15,24 @@ export const Chatbox = () => {
         if (lastMsg == "") return
         let newChat = {
             ...chat,
-            [Date.now()] : { "from" :"user","text" : lastMsg}
-        }
-        setChat(newChat)
+            [Date.now()] : { "from_" :"user","text" : lastMsg},
+        }   
 
+        setChat(newChat)
         fetch("http://127.0.0.1:8000/chatbox-msg", {
             method : "POST",
-            body : {"messages": chat},
+            body : JSON.stringify({ "messages" : newChat, "board" : board}),
             headers: { "Content-Type": "application/json" }
         })
-        .then(res => res.json)
-        .then(json => alert(json))
-
-        
+        .then(res => res.json())
+        .then(data => data.message.content)
+        .then(msg => {
+            newChat = {
+            ...newChat,
+            [Date.now()] : { "from_" :"assistant","text" : msg}
+            }   
+            setChat(newChat)
+        })
 
     }, [lastMsg])
 
