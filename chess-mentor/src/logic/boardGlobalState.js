@@ -2,14 +2,14 @@ import { create } from "zustand";
 
 export const useBoardStore = create((set) => ({
     board : [
-        ["Tb","Hb","Bb","Qb","Kb","Bb","Hb","Tb"],
-        ["Pb","Pb","Pb","Pb","Pb","Pb","Pb","Pb"],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        ["Pw","Pw","Pw","Pw","Pw","Pw","Pw","Pw"],
-        ["Tw","Hw","Bw","Qw","Kw","Bw","Hw","Tw"]
+        ["r", "n", "b", "q", "k", "b", "n", "r"],
+        ["p", "p", "p", "p", "p", "p", "p", "p"],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        ["P", "P", "P", "P", "P", "P", "P", "P"],
+        ["R", "N", "B", "Q", "K", "B", "N", "R"]
     ],
 
     setBoard: (newBoard) => set({ board : newBoard})

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
@@ -26,15 +26,11 @@ function translateCoordinates(coord){
 
 function calcMoves(piece, board){
     let moves = []
-    let pieceType = piece.piece.substring(0,1)
-    let pieceColor = piece.piece.substring(1)
-    
+    let pieceType = piece.piece
 
     switch (pieceType){
         case "P":
-            console.log(piece.coordinates)
-            console.log(translateCoordinates(piece.coordinates))
-            moves = pawnMoves(translateCoordinates(piece.coordinates), pieceColor, board)
+            moves = pawnMoves(translateCoordinates(piece.coordinates), board)
             break
         default:
             console.log("ERROR")
@@ -44,11 +40,8 @@ function calcMoves(piece, board){
 
 }
 
-function pawnMoves(position, color, board){
-
-    
-
-     let x = color == "w" ? position.X - 1 :  position.X + 1
+function pawnMoves(position, board){
+     let x = position.X - 1
      let y = position.Y
     
      let moves = []
@@ -67,11 +60,33 @@ export const Board = () => {
     
     let dragCompleted = useRef(false);
     let destinyPos = useRef("")
+    let turnCounter = useRef(1)
+    let movements = useRef("")
     //const [board, setBoard] = useState(initialBoard)
     const board = useBoardStore((state) => state.board)
     const setBoard = useBoardStore((state) => state.setBoard)
     const [draggedPiece, setDraggedPiece] = useState({coordinates: null, piece: null})
     const [validMoves, setValidMoves] = useState([])
+    const [turn, setTurn] = useState("white")
+
+    useEffect(() => {
+        if(turn == "black"){
+            //fetch
+            fetch("http://127.0.0.1:8000/calc-move", {
+            method : "POST",
+            body : JSON.stringify({ "current" : board , "history_moves" : movements}),
+            headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json)
+            .then(data => {
+                console.log(data)
+            })
+            //set board
+
+            //set turn
+        }
+    }, [turn])
+
 
 
     const handleDragStart = (coord, piece) => {
@@ -85,9 +100,7 @@ export const Board = () => {
                 piece: piece
             });
         }, 0);
-
         setValidMoves(calcMoves(pieceCopy, board))
-        console.log(validMoves)
     }
 
     const handleOnDrop = (index) => {
@@ -119,11 +132,17 @@ export const Board = () => {
                 newBoard.push(newRow)
                 
             })
+
+            let pieceStringForHistory = (draggedPiece.piece == "P") ? "" : draggedPiece.piece
+            let index = calcCoordinatesbyIndex(destinyPos.current.X,destinyPos.current.Y)
+            movements.current += `${turnCounter.current}. ${pieceStringForHistory}${index}`
+
             //Eliminamos la última pieza de la memoria
             setDraggedPiece({coordinates: null, piece: null})
             dragCompleted.current = false
             setValidMoves([])
             setBoard(newBoard)
+            setTurn("black")
             
         }else{
             let newBoard = [...board]
@@ -136,12 +155,6 @@ export const Board = () => {
         
     }
 
-    // TODO : Añadir las imágenes, evitar que una pieza se elimine al dropearse sobre si misma, hacer que el draggear la pieza desapareza de su celda y se mueva
-    
-
-
-                
-    //console.log(calcCoordinatesbyIndex(draggedPiece.coordinates))     
     return (
         <div className="flex-board">
             {board.map((row, rowIndex) => {
@@ -158,6 +171,7 @@ export const Board = () => {
                                 onDragEnd = {handleDragEnd}
                                 draggedPiece = {draggedPiece.coordinates}
                                 validMoves = {validMoves}
+                                whosTurn = {turn}
                             />)
                     )
             )})}
