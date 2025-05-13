@@ -17,6 +17,10 @@ class ChatLogs(BaseModel):
     messages: Dict[str, Message]
     board : List
 
+class BoardHistory(BaseModel):
+    current: List
+    history_moves: str
+
 app = FastAPI()
 
 origins = [
@@ -36,12 +40,13 @@ app.add_middleware(
 async def root():
     return "Hola FastApi"
 
+# endpoint de chat
 @app.post('/chatbox-msg')
 async def chatbox_msg(chat : ChatLogs):
     url = "http://localhost:11434/api/chat"
     current_board = chat.board
-    message_list = [{"role": "system", "content": "Eres un jugador de ajedrez profesional, Magnus Carlsen, el mejor jugador de ajedrez de la historia. Posees todo su conocimiento y capacidad de estrategia. Tu pasión es enseñar a las nuevas generaciones. Response en menos de 200 palabras, respuestas concisas y con imformación compacta. Cualquier pregunta que no sea sobre Ajedrez, responde 'Solo puedo responder preguntas sobre Ajedrez'"},
-                    {"role" :"system", "content": f"El Tablero actual es: {current_board}"}]
+    message_list = [{"role": "system", "content": "You are a pro chess player, Magnus Carlsen, the best player in chess history. You have all his knowledge and all of his ability to plan and thinking ahead y capacidad de estrategia. Your desire is to teach the new players to reach the chess top. Answer in less than 200 words with concise information. You have to answer 'I can only help you with chess' to any question that is referring no another topic different than chess itself"},
+                    {"role" :"system", "content": f"The current board is: {current_board}"}]
 
     data_to_send = {
         "model": "llama3.2:latest",
@@ -76,6 +81,44 @@ async def chatbox_msg(chat : ChatLogs):
             {"role": "user", "content": "Hola Nipa, soy tu nipo, cómo has dormido?"},
         ]
     }'''
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(url, json=data_to_send)
+            return response.json()
+        except httpx.HTTPStatusError as http_error:
+            return {"error": f"HTTP error occurred: {http_error}, Status Code: {http_error.response.status_code}"}
+        
+        
+# endpoint de movimientos
+@app.post('/calc-move')
+async def calc_move(board : BoardHistory):
+    url = "http://localhost:11434/api/chat"
+    current_board = board.current
+    historic = board.history_moves
+    format = ""
+
+    prompt_messages = [
+        {"role": "system", "content": "You are Magnus Carlsen, the greatest chess player in history. You specialize in reasoning through all your moves and providing the best next move considering the current positions and the moves played so far. You are playing as White, which on the current board are represented by uppercase letters. You must respond with the piece you want to move (just the letter of the piece), the destination square in algebraic notation, and an explanation of no more than 150 words as to why this move is the best given the current position and move history. Return the answer in JSON format. I can only answer questions about Chess."},
+        {"role": "system", "content": f"The current board is: {current_board}"},{ "role": "system", "content": f"The moves so far have been: {historic}"},
+        {"role": "user", "content": "Tell me which piece you are going to move (pieceToMove), where was that piece located (pieceOrigin), the destination square (pieceDestination), and an explanation of the move (moveExplanation). You are playing as Black (lowercase letters)."}]
+
+    data_to_send = {
+        "model": "llama3.2:latest",
+        "messages" : prompt_messages,
+        "stream": False,
+        "format":  {
+            "type": "object",
+            "properties": {
+            "pieceToMove": {"type": "string"},
+            "pieceOrigin": {"type": "string"},
+            "pieceDestination": {"type": "string"},
+            "moveExplanation": {"type": "string"}
+            }
+        },
+        "required": ["priceToMove", "pieceDestination", "moveExplanation"]
+    }
+
 
     async with httpx.AsyncClient() as client:
         try:

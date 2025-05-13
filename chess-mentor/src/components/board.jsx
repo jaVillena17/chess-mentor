@@ -72,18 +72,20 @@ export const Board = () => {
     useEffect(() => {
         if(turn == "black"){
             //fetch
+
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
-            body : JSON.stringify({ "current" : board , "history_moves" : movements}),
+            body : JSON.stringify({ "current" : board , "history_moves" : movements.current}),
             headers: { "Content-Type": "application/json" }
             })
-            .then(response => response.json)
-            .then(data => {
-                console.log(data)
-            })
+            .then(response => response.json())
+            .then(data => data.message.content)
+            .then(rip => console.log(rip))
+
             //set board
 
             //set turn
+            setTurn("white")
         }
     }, [turn])
 
