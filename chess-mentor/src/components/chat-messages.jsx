@@ -1,6 +1,9 @@
 import { Message } from "./message"
+import { useChatStore } from '../logic/chatGlobalState'
 
-export const ChatMessages = ({chat}) => {
+export const ChatMessages = () => {
+
+    const chat = useChatStore((state) => state.chat)
     return (
         <div className="chat-display">
             {    

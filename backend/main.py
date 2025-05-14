@@ -99,9 +99,9 @@ async def calc_move(board : BoardHistory):
     format = ""
 
     prompt_messages = [
-        {"role": "system", "content": "You are Magnus Carlsen, the greatest chess player in history. You specialize in reasoning through all your moves and providing the best next move considering the current positions and the moves played so far. You are playing as White, which on the current board are represented by uppercase letters. You must respond with the piece you want to move (just the letter of the piece), the destination square in algebraic notation, and an explanation of no more than 150 words as to why this move is the best given the current position and move history. Return the answer in JSON format. I can only answer questions about Chess."},
+        {"role": "system", "content": "You are Magnus Carlsen, the greatest chess player in history. You specialize in reasoning through all your moves and providing the best next move considering the current positions and the moves played so far. You are playing as White, which on the current board are represented by uppercase letters. You must respond with the piece you want to move (just the letter of the piece), the destination square in algebraic notation, and an explanation of no more than 150 words as to why this move is the best given the current position and move history. Return the answer in JSON format. I can only answer questions about Chess. "},
         {"role": "system", "content": f"The current board is: {current_board}"},{ "role": "system", "content": f"The moves so far have been: {historic}"},
-        {"role": "user", "content": "Tell me which piece you are going to move (pieceToMove), where was that piece located (pieceOrigin), the destination square (pieceDestination), and an explanation of the move (moveExplanation). You are playing as Black (lowercase letters)."}]
+        {"role": "user", "content": "Tell me which piece you are going to move (pieceToMove), where was that piece located (pieceOrigin), the destination square (pieceDestination), and an explanation of the move (moveExplanation). You are playing as Black (lowercase letters). Your explanation must match pieceOrigin and pieceDestination"}]
 
     data_to_send = {
         "model": "llama3.2:latest",

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
+import { useChatStore } from "../logic/chatGlobalState";
 
 
 const coordinates = ["h","g","f","e","d","c","b","a"];
@@ -13,6 +14,15 @@ function calcCoordinatesbyIndex(rowIndex, colIndex){
     return  xCoord + "" + y
 }
 
+function getIndexByCoord(coord){
+    const x = coordinates.indexOf(coord[0])
+    const y = parseInt(coord[1]) - 1
+
+    return ({
+        "X": x, 
+        "Y": y
+    })
+}
 function translateCoordinates(coord){
     const x = 8 - parseInt(coord[1])
     const y = 7 - coordinates.indexOf(coord[0])
@@ -69,20 +79,42 @@ export const Board = () => {
     const [validMoves, setValidMoves] = useState([])
     const [turn, setTurn] = useState("white")
 
+    const chat = useChatStore((state) => state.chat)
+    const setChat = useChatStore((state) => state.setChat)
     useEffect(() => {
         if(turn == "black"){
             //fetch
-
+            console.log(movements.current)
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
             body : JSON.stringify({ "current" : board , "history_moves" : movements.current}),
             headers: { "Content-Type": "application/json" }
             })
             .then(response => response.json())
-            .then(data => data.message.content)
-            .then(rip => console.log(rip))
+            .then(data => JSON.parse(data.message.content))
+            .then(content => {
+                console.log(content)
+                let piece = content.pieceToMove.toLowerCase()
+                let origin = getIndexByCoord(content.pieceOrigin)
+                let destination = getIndexByCoord(content.pieceDestination)
+                let explanation = content.moveExplanation
 
-            //set board
+                let newBoard = [...board]
+                newBoard[origin.X][origin.Y] = 0
+                newBoard[destination.X][destination.Y] = piece
+
+                setBoard(newBoard)
+                turnCounter++
+                movements.current += ` ${piece}${content.pieceDestination} `
+
+
+                let newChat = {
+                    ...chat,
+                    [Date.now()] : { "from_" :"assistant","text" : explanation},
+                }
+
+                setChat(newChat)
+            })
 
             //set turn
             setTurn("white")

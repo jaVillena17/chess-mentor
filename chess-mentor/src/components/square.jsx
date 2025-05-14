@@ -5,7 +5,10 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
     if(piece != 0){
         pieceRoute = (piece.toLowerCase() == piece) ? "assets/Pieces/black/" : "assets/Pieces/white/"
     }
-
+    const letras = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    if(letras.includes(piece)){
+        piece = 'p'
+    }
     const handleDragStart = () => {
         onDragStart(index, piece)
     }

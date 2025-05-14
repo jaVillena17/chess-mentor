@@ -3,9 +3,13 @@ import '../static/css/chatbox.css'
 import { ChatMessages } from './chat-messages'
 import { ChatboxSend } from './chatbox-send'
 import { useBoardStore } from '../logic/boardGlobalState'
+import { useChatStore } from '../logic/chatGlobalState'
 
 export const Chatbox = () => {
-    let [chat, setChat] = useState({})
+    const chat = useChatStore((state) => state.chat)
+    const setChat = useChatStore((state) => state.setChat)
+    //const [chat, setChat] = useState({})
+    
 
     const board = useBoardStore((state) => state.board)
 
@@ -17,7 +21,6 @@ export const Chatbox = () => {
             ...chat,
             [Date.now()] : { "from_" :"user","text" : lastMsg},
         }   
-
         setChat(newChat)
         fetch("http://127.0.0.1:8000/chatbox-msg", {
             method : "POST",
