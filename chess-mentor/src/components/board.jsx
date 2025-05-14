@@ -104,7 +104,7 @@ export const Board = () => {
                 newBoard[destination.X][destination.Y] = piece
 
                 setBoard(newBoard)
-                turnCounter++
+                turnCounter.current++
                 movements.current += ` ${piece}${content.pieceDestination} `
 
 

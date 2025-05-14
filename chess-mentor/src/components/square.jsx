@@ -2,6 +2,8 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
 
     let pieceRoute = ""
 
+    if (piece.length > 1) piece = piece.substring(0,1)
+
     if(piece != 0){
         pieceRoute = (piece.toLowerCase() == piece) ? "assets/Pieces/black/" : "assets/Pieces/white/"
     }
