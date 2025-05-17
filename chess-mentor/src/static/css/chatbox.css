@@ -22,7 +22,8 @@ main div.chatbox, div.flex-board{
 }
 
 body{
-    background-color: #4a4a48;
+    background-color: #312f2f;
+    overflow: hidden;
 }
 
 /* Añadir Estilos para que el contenedor del juego quede bien en la pantalla, ahora mismo solo pilla la mitad*/

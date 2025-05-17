@@ -1,0 +1,87 @@
+main.login-page{
+    background-image: url(/assets/login-background.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    position: relative;
+    margin-right: 0px;
+    right: 0px;
+    width: 85vw;
+    height: 98vh;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-left: 30px;
+    border: none;
+}
+
+main.login-page .display-none{
+    display: none;
+}
+
+div.login-form{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 30px;
+    z-index: 2;
+    color: #fff;
+    background-color: #242323;
+}
+
+#login-title{
+    font-weight: bolder;
+    font-size: 2.5em;
+    margin-bottom: 25px;
+}
+
+div.login-form input{
+    margin-bottom: 20px;
+    border-radius: 5px;
+    height: 35px;
+    background-color: rgb(68, 64, 64);
+    outline: none;
+    border: 1px solid #8b7925;
+}
+
+div.login-form label{
+    margin-bottom: 10px;
+}
+
+div.login-form hr{
+    margin: 20px 0px;
+    border-radius: 5px;
+}
+
+div.background-container{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1; 
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+div.background-container span{
+    
+    transform: rotate(45deg) matrix(1, 0, 0, 1, 0, 0);
+}
+
+span.top-background-square{
+    display: block;
+    background-color: white;
+    width: 50%;
+    height: 20vh;
+}
+
+span.bottom-background-square{
+    display: block;
+    position: relative;
+    width: 25vw;
+    height: 25vw;
+    border: 1px solid white;
+}
