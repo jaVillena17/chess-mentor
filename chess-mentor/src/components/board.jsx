@@ -3,224 +3,7 @@ import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
 import { useChatStore } from "../logic/chatGlobalState";
-
-
-const coordinates = ["h","g","f","e","d","c","b","a"];
-const whitePieces = ["P","R","N","B","Q","K"]
-const blackPieces = ["p","r","n","b","q","k"]
-
-function calcCoordinatesbyIndex(rowIndex, colIndex){
-    const x = 7-colIndex;
-    const y = 8 - rowIndex%8;
-    const xCoord = coordinates[x]
-    return  xCoord + "" + y
-}
-
-function getIndexByCoord(coord){
-    const x = coordinates.indexOf(coord[0])
-    const y = parseInt(coord[1]) - 1
-
-    return ({
-        "X": x, 
-        "Y": y
-    })
-}
-function translateCoordinates(coord){
-    const x = 8 - parseInt(coord[1])
-    const y = 7 - coordinates.indexOf(coord[0])
-    
-
-    return ({
-        "X": x, 
-        "Y": y
-    })
-}
-
-function isBlack(piece){
-    if(piece == 0){
-        return false
-    }
-    return piece.toLowerCase() == piece
-}
-
-function calcMoves(piece, board){
-    let moves = []
-    let pieceType = piece.piece
-
-    switch (pieceType){
-        case "P":
-            moves = pawnMoves(translateCoordinates(piece.coordinates), board)
-            break;
-        case "R":
-            moves = rookMoves(translateCoordinates(piece.coordinates), board)
-            break;
-        default:
-            console.log("ERROR")
-            break
-    }
-    return moves
-
-}
-
-function pawnMoves(position, board){ 
-    let x = position.X - 1
-    let y = position.Y
-    
-    let moves = []
-
-    if(board[x][y] != undefined && board[x][y] == 0){
-        let valid = calcCoordinatesbyIndex(x, y)
-        moves.push(valid)
-    }
-
-    let secondX = position.X - 2
-    if(position.X == 6 && board[secondX][y] == 0  && board[x][y] == 0){
-        //Primer movimiento, puede moverse 2 casillas
-        let valid = calcCoordinatesbyIndex(secondX, y)
-        moves.push(valid)
-    }
-
-    //Tenemos que calcular si tiene también una pieza en diagonal, en cuyo caso se la debe de poder comer
-    let right = position.Y + 1
-    let left = position.Y - 1
-
-
-    if(board[x][left] != undefined && isBlack(board[x][left])){
-        let valid = calcCoordinatesbyIndex(x, left)
-        moves.push(valid)
-    }
-
-    if(board[x][right] != undefined && isBlack(board[x][right])){
-        let valid = calcCoordinatesbyIndex(x, right)
-        moves.push(valid)
-    }
-
-    return moves
-}
-
-function rookMoves(position, board){
-    let x = position.X - 1
-    let y = position.Y
-    //Variable donde guardaremos los posibles movimientos de la torre
-    let moves = []
-
-    let canStillMove = true
-
-    //Calculamos los movimientos hacia arriba
-    while(canStillMove){
-        if(board[x] == undefined){
-            canStillMove = false
-            break
-        }
-        let nextPiece = board[x][y]
-
-        if(nextPiece == undefined){
-            canStillMove = false
-        }
-
-        //Si es una pieza blanca, no hay posibilidad
-        if(whitePieces.includes(nextPiece)){
-            canStillMove = false
-        }else if(nextPiece == 0){
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            x--
-        }else{
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            canStillMove = false
-        }
-    }
-
-    //Calculamos los movimientos hacia abajo
-    canStillMove = true
-    x = position.X + 1
-    while(canStillMove){
-        if(board[x] == undefined){
-            canStillMove = false
-            break
-        }
-        let nextPiece = board[x][y]
-
-        if(nextPiece == undefined){
-            canStillMove = false
-        }
-
-        //Si es una pieza blanca, no hay posibilidad
-        if(whitePieces.includes(nextPiece)){
-            canStillMove = false
-        }else if(nextPiece == 0){
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            x++
-        }else{
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            canStillMove = false
-        }
-    }
-
-    //Calculamos los movimientos en horizontal - derecha
-    canStillMove = true
-    x = position.X
-    y = position.Y + 1
-    while(canStillMove){
-        if(board[x] == undefined){
-            canStillMove = false
-            break
-        }
-        let nextPiece = board[x][y]
-
-        if(nextPiece == undefined){
-            canStillMove = false
-        }
-
-        //Si es una pieza blanca, no hay posibilidad
-        if(whitePieces.includes(nextPiece)){
-            canStillMove = false
-        }else if(nextPiece == 0){
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            y++
-        }else{
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            canStillMove = false
-        }
-    }
-    //Calculamos los movimientos en horizontal - izquierda
-    canStillMove = true
-    x = position.X
-    y = position.Y - 1
-    while(canStillMove){
-        if(board[x] == undefined){
-            canStillMove = false
-            break
-        }
-        let nextPiece = board[x][y]
-
-        if(nextPiece == undefined){
-            canStillMove = false
-        }
-
-        //Si es una pieza blanca, no hay posibilidad
-        if(whitePieces.includes(nextPiece)){
-            canStillMove = false
-        }else if(nextPiece == 0){
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            y--
-        }else{
-            let valid = calcCoordinatesbyIndex(x, y)
-            moves.push(valid)
-            canStillMove = false
-        }
-    }
-
-
-
-    return moves
-}
+import { calcMoves, getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates } from "../logic/movesLogic";
 
 
 export const Board = () => {
@@ -269,12 +52,11 @@ export const Board = () => {
                     ...chat,
                     [Date.now()] : { "from_" :"assistant","text" : explanation},
                 }
-
+                //set chat
                 setChat(newChat)
+                //set turn
+                setTurn("white")
             })
-
-            //set turn
-            setTurn("white")
         }
     }, [turn])
 
@@ -327,6 +109,23 @@ export const Board = () => {
             let pieceStringForHistory = (draggedPiece.piece == "P") ? "" : draggedPiece.piece
             let index = calcCoordinatesbyIndex(destinyPos.current.X,destinyPos.current.Y)
             movements.current += `${turnCounter.current}. ${pieceStringForHistory}${index}`
+
+            //Control del enroque a posteriori, creo que es la forma más simple de controlarlo
+                //Primero enroque largo
+                if(draggedPiece.piece == "K" && destinyPos.current.X == 7 && destinyPos.current.Y == 2){
+                    //Borramos la torre de su posicion
+                    newBoard[7][0] = "0"
+                    //Movemos la torre a donde tiene que ir
+                    newBoard[7][3] = "R"
+                }
+
+                //Ahora para el enroque corto
+                else if (draggedPiece.piece == "K" && destinyPos.current.X == 7 && destinyPos.current.Y == 6){
+                    //Borramos la torre de su posicion
+                    newBoard[7][7] = "0"
+                    //Movemos la torre a donde tiene que ir
+                    newBoard[7][5] = "R"
+                }
 
             //Eliminamos la última pieza de la memoria
             setDraggedPiece({coordinates: null, piece: null})
