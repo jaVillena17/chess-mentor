@@ -3,10 +3,14 @@ import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
 import { useChatStore } from "../logic/chatGlobalState";
-import { calcMoves, getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates } from "../logic/movesLogic";
+import { calcMoves, getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates, checkCheck } from "../logic/movesLogic";
+import { endgameState } from "../logic/endgameGlobalState";
+
+
 
 
 export const Board = () => {
+    
     
     let dragCompleted = useRef(false);
     let destinyPos = useRef("")
@@ -18,6 +22,7 @@ export const Board = () => {
     const [draggedPiece, setDraggedPiece] = useState({coordinates: null, piece: null})
     const [validMoves, setValidMoves] = useState([])
     const [turn, setTurn] = useState("white")
+    let setEndgame = endgameState((state) => state.setEndgameStatus)
 
     const chat = useChatStore((state) => state.chat)
     const setChat = useChatStore((state) => state.setChat)
@@ -126,13 +131,19 @@ export const Board = () => {
                     //Movemos la torre a donde tiene que ir
                     newBoard[7][5] = "R"
                 }
+            //Comprobamos jaque
+            let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
+            if (check){
+                setEndgame(check)
+            }
 
             //Eliminamos la última pieza de la memoria
             setDraggedPiece({coordinates: null, piece: null})
             dragCompleted.current = false
             setValidMoves([])
             setBoard(newBoard)
-            setTurn("black")
+            //setTurn("black")
+            
             
         }else{
             let newBoard = [...board]

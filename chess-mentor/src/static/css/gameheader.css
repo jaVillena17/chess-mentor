@@ -4,3 +4,9 @@ div.gameHeader{
     height: 15vh;
     border-radius: 25px;
 }
+
+p.game-status{
+    color: #fff;
+    text-align: center;
+    font-size: 5em;
+}

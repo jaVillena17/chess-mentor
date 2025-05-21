@@ -1,5 +1,6 @@
 export const coordinates = ["h","g","f","e","d","c","b","a"];
 export const whitePieces = ["P","R","N","B","Q","K"]
+import { endgameState } from "./endgameGlobalState";
 
 export function calcCoordinatesbyIndex(rowIndex, colIndex){
     const x = 7-colIndex;
@@ -38,6 +39,7 @@ export function isBlack(piece){
 export function calcMoves(piece, board){
     let moves = []
     let pieceType = piece.piece
+    console.log(piece)
 
     switch (pieceType){
         case "P":
@@ -59,7 +61,7 @@ export function calcMoves(piece, board){
             moves = kingMoves(translateCoordinates(piece.coordinates), board)
             break;
         default:
-            console.log("ERROR")
+            console.log(pieceType)
             break
     }
     return moves
@@ -112,7 +114,8 @@ export function rookMoves(position, board){
 
     //Calculamos los movimientos hacia arriba
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits ||board[x] == undefined){
             canStillMove = false
             break
         }
@@ -140,7 +143,8 @@ export function rookMoves(position, board){
     canStillMove = true
     x = position.X + 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -169,7 +173,8 @@ export function rookMoves(position, board){
     x = position.X
     y = position.Y + 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -197,7 +202,8 @@ export function rookMoves(position, board){
     x = position.X
     y = position.Y - 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -220,8 +226,6 @@ export function rookMoves(position, board){
             canStillMove = false
         }
     }
-
-
 
     return moves
 }
@@ -322,7 +326,8 @@ export function bishopMoves(position, board){
 
     //Calculamos los movimiento diagonal arriba izquierda
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -352,7 +357,8 @@ export function bishopMoves(position, board){
     x = position.X - 1
     y = position.Y + 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -382,7 +388,8 @@ export function bishopMoves(position, board){
     x = position.X + 1
     y = position.Y - 1 
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -412,7 +419,8 @@ export function bishopMoves(position, board){
     x = position.X + 1
     y = position.Y + 1 
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -451,7 +459,8 @@ export function queenMoves(position, board){
 
     //Calculamos los movimiento diagonal arriba izquierda
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -481,7 +490,8 @@ export function queenMoves(position, board){
     x = position.X - 1
     y = position.Y + 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -511,7 +521,8 @@ export function queenMoves(position, board){
     x = position.X + 1
     y = position.Y - 1 
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -541,7 +552,8 @@ export function queenMoves(position, board){
     x = position.X + 1
     y = position.Y + 1 
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -572,7 +584,8 @@ export function queenMoves(position, board){
 
     //Calculamos los movimientos hacia arriba
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -600,7 +613,8 @@ export function queenMoves(position, board){
     canStillMove = true
     x = position.X + 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -629,7 +643,8 @@ export function queenMoves(position, board){
     x = position.X
     y = position.Y + 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -657,7 +672,8 @@ export function queenMoves(position, board){
     x = position.X
     y = position.Y - 1
     while(canStillMove){
-        if(board[x] == undefined){
+        let limits = x < 0 || x > 7 || y < 0 || y > 7
+        if(limits || board[x] == undefined){
             canStillMove = false
             break
         }
@@ -731,3 +747,25 @@ export function kingMoves(position, board){
     
     return moves
 }
+
+// Función que calcula un jaque
+export function checkCheck(piece, board){
+    //Calculamos los próximos posibles movimientos de la pieza que acabamos de mover
+    let nextMoves = calcMoves(piece, board)
+    let check = false
+    console.log(nextMoves)
+    //Recorremos los movimientos posibles. Si en alguno está el rey, es jaque
+    nextMoves.forEach(move => {
+        //Transformamos el movimiento en indices de la matriz
+        let index = translateCoordinates(move)
+        console.log(index)
+        //Si está en rey en la posición
+        if (board[index.X][index.Y] == "k"){
+            check =  "JAQUE"
+        }
+    })
+
+    //Si no en cuentra, retornamos false
+    return check
+}
+
