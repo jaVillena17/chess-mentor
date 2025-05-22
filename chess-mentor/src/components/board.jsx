@@ -3,33 +3,35 @@ import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
 import { useChatStore } from "../logic/chatGlobalState";
-import { calcMoves, getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates, checkCheck } from "../logic/movesLogic";
+import { getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllPossibleMoves } from "../logic/movesLogic";
 import { endgameState } from "../logic/endgameGlobalState";
-
+import { invertirMatriz } from "../logic/logic";
 
 
 
 export const Board = () => {
     
-    
-    let dragCompleted = useRef(false);
-    let destinyPos = useRef("")
-    let turnCounter = useRef(1)
-    let movements = useRef("")
-    //const [board, setBoard] = useState(initialBoard)
+    const dragCompleted = useRef(false);
+    const destinyPos = useRef("")
+    const turnCounter = useRef(1)
+    const movements = useRef("")
+    const dangerSquare = useRef([])
     const board = useBoardStore((state) => state.board)
     const setBoard = useBoardStore((state) => state.setBoard)
     const [draggedPiece, setDraggedPiece] = useState({coordinates: null, piece: null})
     const [validMoves, setValidMoves] = useState([])
+    const [allMoves, setAllMoves] = useState(calculateAllPossibleMoves(board, dangerSquare.current))
     const [turn, setTurn] = useState("white")
-    let setEndgame = endgameState((state) => state.setEndgameStatus)
+    const endGame = endgameState((state) => state.endgameStatus)
+    const setEndgame = endgameState((state) => state.setEndgameStatus)
+
+    let blackMoves = useRef({})
 
     const chat = useChatStore((state) => state.chat)
     const setChat = useChatStore((state) => state.setChat)
     useEffect(() => {
         if(turn == "black"){
             //fetch
-            console.log(movements.current)
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
             body : JSON.stringify({ "current" : board , "history_moves" : movements.current}),
@@ -38,7 +40,6 @@ export const Board = () => {
             .then(response => response.json())
             .then(data => JSON.parse(data.message.content))
             .then(content => {
-                console.log(content)
                 let piece = content.pieceToMove.toLowerCase()
                 let origin = getIndexByCoord(content.pieceOrigin)
                 let destination = getIndexByCoord(content.pieceDestination)
@@ -68,22 +69,28 @@ export const Board = () => {
 
 
     const handleDragStart = (coord, piece) => {
-
-        const pieceCopy = {coordinates: coord, piece: piece}
+        //Creamos el objeto con los datos guardados de la pieza a mover
+        setDraggedPiece({
+           coordinates: coord,
+            piece: piece
+        }); 
+        console.log(allMoves)
+        setValidMoves(allMoves[coord].pieceMoves)
         
-        setTimeout(() => {
-            //Creamos el objeto con los datos guardados de la pieza a mover
-            setDraggedPiece({
-                coordinates: coord,
-                piece: piece
-            });
-        }, 0);
-        setValidMoves(calcMoves(pieceCopy, board))
+        
     }
 
     const handleOnDrop = (index) => {
         dragCompleted.current = true
-        destinyPos.current = translateCoordinates(index)
+        let destination = translateCoordinates(index)
+        destinyPos.current = destination
+
+        //Aquí sacar la pieza que hay en el destino, si es el rey, game over
+        let targetPiece = board[destination.X][destination.Y]
+
+        if(targetPiece == "k"){
+            setEndgame("YOU WON")
+        }
     }
 
     const handleDragEnd = () => {
@@ -132,7 +139,7 @@ export const Board = () => {
                     newBoard[7][5] = "R"
                 }
             //Comprobamos jaque
-            let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
+            let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard, dangerSquare.current)
             if (check){
                 setEndgame(check)
             }
@@ -142,6 +149,37 @@ export const Board = () => {
             dragCompleted.current = false
             setValidMoves([])
             setBoard(newBoard)
+            //Estos van a ser todos los nuevos movimientos que tenemos en nuestra nueva posición
+            let allNewMoves = calculateAllPossibleMoves(newBoard, dangerSquare.current)
+            console.log(allNewMoves)
+            //Tenemos que actualizar los nuevos peligros
+            let newDangers = []
+            for (const [_, value] of Object.entries(allMoves)){
+                let moves = value.pieceMoves
+                newDangers.push(...moves)
+            }
+            //Actualizamos los peligros
+            dangerSquare.current = newDangers
+            
+            //Calculamos movimientos para las piezas negras con dichos peligros
+            //le damos la vuelta a la matriz
+            let blackBoard = invertirMatriz(newBoard)
+            let blackOptions = calculateAllPossibleMoves(blackBoard, dangerSquare.current)
+            blackMoves.current = blackOptions
+            console.log(blackOptions)
+            //Controlar jaque mate y ahogado aqui, si todos los posibles movimientos están vacios
+            
+            let blackMovesCounter =  0
+            for (const [_, value] of Object.entries(blackOptions)){
+                let moves = value.pieceMoves
+                blackMovesCounter += moves.length
+            }
+
+            if(blackMovesCounter == 0 && endGame == "check"){
+                setEndgame("CHECKMATE")
+            }else if(blackMovesCounter == 0 && endGame == "KEEP PLAYING"){
+                setEndgame("DROWNED")
+            }
             //setTurn("black")
             
             

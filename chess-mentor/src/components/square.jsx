@@ -24,6 +24,8 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
         onDragEnd()
     }
 
+    const isPieceWhite = piece != 0 && piece.toUpperCase() == piece
+
     let validMvClass = validMoves.includes(index) ? " valid-move" : ""
     
     const SquareClasses = `square${validMvClass}`
@@ -33,7 +35,7 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
            {piece != 0 && 
                 <img 
                     src={`${pieceRoute}${piece}.svg`} 
-                    draggable={(whosTurn == "white") ? "true" : "false"}
+                    draggable={(whosTurn == "white" && isPieceWhite) ? "true" : "false"}
                     className={index == draggedPiece ? "display-none" : ""} 
                     onDragStart={handleDragStart} 
                     onDragEnd={handleDragEnd} 

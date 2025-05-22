@@ -1,10 +1,9 @@
 export const coordinates = ["h","g","f","e","d","c","b","a"];
 export const whitePieces = ["P","R","N","B","Q","K"]
-import { endgameState } from "./endgameGlobalState";
 
 export function calcCoordinatesbyIndex(rowIndex, colIndex){
-    const x = 7-colIndex;
-    const y = 8 - rowIndex%8;
+    const x = rowIndex;
+    const y = colIndex + 1
     const xCoord = coordinates[x]
     return  xCoord + "" + y
 }
@@ -19,16 +18,15 @@ export function getIndexByCoord(coord){
     })
 }
 export function translateCoordinates(coord){
-    const x = 8 - parseInt(coord[1])
-    const y = 7 - coordinates.indexOf(coord[0])
+    const x = parseInt(coord[1]) - 1
+    const y = coordinates.indexOf(coord[0])
     
 
     return ({
-        "X": x, 
-        "Y": y
+        "X": y, 
+        "Y": x
     })
 }
-
 export function isBlack(piece){
     if(piece == 0){
         return false
@@ -36,10 +34,9 @@ export function isBlack(piece){
     return piece.toLowerCase() == piece
 }
 
-export function calcMoves(piece, board){
+export function calcMoves(piece, board, posicionesAmenazadas){
     let moves = []
     let pieceType = piece.piece
-    console.log(piece)
 
     switch (pieceType){
         case "P":
@@ -58,7 +55,7 @@ export function calcMoves(piece, board){
             moves = queenMoves(translateCoordinates(piece.coordinates), board)
             break;
         case "K":
-            moves = kingMoves(translateCoordinates(piece.coordinates), board)
+            moves = kingMoves(translateCoordinates(piece.coordinates), board, posicionesAmenazadas)
             break;
         default:
             console.log(pieceType)
@@ -71,7 +68,6 @@ export function calcMoves(piece, board){
 export function pawnMoves(position, board){ 
     let x = position.X - 1
     let y = position.Y
-    
     let moves = []
 
     if(board[x][y] != undefined && board[x][y] == 0){
@@ -298,7 +294,6 @@ export function knightMoves(position, board){
     if(board[x] != undefined){
         //We have to check up and down
         if(y >= 0 && board[x][y] != undefined && !whitePieces.includes(board[x][y])){
-            console.log(`${x},${y}`)
             let valid = calcCoordinatesbyIndex(x,y)
             moves.push(valid)
         }
@@ -700,7 +695,7 @@ export function queenMoves(position, board){
     return moves
 }
 
-export function kingMoves(position, board){
+export function kingMoves(position, board, posicionesAmenazadas){
     let x = position.X 
     let y = position.Y
     
@@ -710,7 +705,7 @@ export function kingMoves(position, board){
     for(let i = -1; i <= 1; i++){
         if(board[x+i] != undefined){
             for(let j = -1; j <= 1; j++){
-                if(board[x+i][y+j] != undefined && !whitePieces.includes(board[x+i][y+j])){
+                if(board[x+i][y+j] != undefined && !whitePieces.includes(board[x+i][y+j]) && !posicionesAmenazadas.includes(calcCoordinatesbyIndex(x+i, y+j))){
                     let valid = calcCoordinatesbyIndex(x+i, y+j)
                     moves.push(valid)
                 }
@@ -749,16 +744,14 @@ export function kingMoves(position, board){
 }
 
 // Función que calcula un jaque
-export function checkCheck(piece, board){
+export function checkCheck(piece, board, danger){
     //Calculamos los próximos posibles movimientos de la pieza que acabamos de mover
-    let nextMoves = calcMoves(piece, board)
+    let nextMoves = calcMoves(piece, board, danger)
     let check = false
-    console.log(nextMoves)
     //Recorremos los movimientos posibles. Si en alguno está el rey, es jaque
     nextMoves.forEach(move => {
         //Transformamos el movimiento en indices de la matriz
         let index = translateCoordinates(move)
-        console.log(index)
         //Si está en rey en la posición
         if (board[index.X][index.Y] == "k"){
             check =  "JAQUE"
@@ -769,3 +762,18 @@ export function checkCheck(piece, board){
     return check
 }
 
+export function calculateAllPossibleMoves(board, posicionesAmenazadas){
+    let allMoves = {}
+    board.forEach((row, x) => {
+
+        row.forEach((square, y) => {
+            if (whitePieces.includes(square)){ 
+                let piece = {piece : square, coordinates : calcCoordinatesbyIndex(x, y)}
+                let moves = calcMoves(piece, board, posicionesAmenazadas)
+                allMoves[piece.coordinates] = {piece : piece.piece, pieceMoves : moves}
+            }
+        })
+
+    })
+    return allMoves
+}
