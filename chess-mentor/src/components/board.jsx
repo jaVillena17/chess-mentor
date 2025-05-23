@@ -3,7 +3,7 @@ import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
 import { useChatStore } from "../logic/chatGlobalState";
-import { getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllPossibleMoves } from "../logic/movesLogic";
+import { getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllPossibleMoves, invertirCasilla } from "../logic/movesLogic";
 import { endgameState } from "../logic/endgameGlobalState";
 import { invertirMatriz } from "../logic/logic";
 
@@ -32,32 +32,56 @@ export const Board = () => {
     useEffect(() => {
         if(turn == "black"){
             //fetch
+            console.log(blackMoves.current)
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
-            body : JSON.stringify({ "current" : board , "history_moves" : movements.current}),
+            body : JSON.stringify({ "current" : board , "history_moves" : movements.current, "possible_moves": blackMoves.current}),
             headers: { "Content-Type": "application/json" }
             })
             .then(response => response.json())
             .then(data => JSON.parse(data.message.content))
             .then(content => {
-                let piece = content.pieceToMove.toLowerCase()
-                let origin = getIndexByCoord(content.pieceOrigin)
-                let destination = getIndexByCoord(content.pieceDestination)
+                //we have to invert bow origin and destination
+                let origin = invertirCasilla(content.pieceOrigin)
+                //Sacamos la pieza nosotros a mano para que no la lie la ia
+                let piece =  blackMoves.current[content.pieceOrigin].piece.toLowerCase()
+                //Comprobamos si su destination está dento de las opciones que le hemos dado, si no, cogemos el primero de la lista
+                let destination = ""
+                if (blackMoves.current[content.pieceOrigin].pieceMoves.includes(content.pieceDestination)){
+                    destination = invertirCasilla(content.pieceDestination)
+                }else{
+                    destination = invertirCasilla(blackMoves.current[content.pieceOrigin].pieceMoves[0])
+                }
+                 
                 let explanation = content.moveExplanation
 
                 let newBoard = [...board]
-                newBoard[origin.X][origin.Y] = 0
-                newBoard[destination.X][destination.Y] = piece
+                newBoard[origin.x][origin.y] = 0
+                newBoard[destination.x][destination.y] = piece
 
                 setBoard(newBoard)
                 turnCounter.current++
                 movements.current += ` ${piece}${content.pieceDestination} `
 
-
                 let newChat = {
                     ...chat,
                     [Date.now()] : { "from_" :"assistant","text" : explanation},
                 }
+
+                //Invertir la new board
+                let invertedBoard = invertirMatriz(newBoard)
+                //Calcular los nuevos movimientos posibles
+                let allNewBlackMoves = calculateAllPossibleMoves(invertedBoard, dangerSquare.current)
+                //Tenemos que actualizar los nuevos peligros
+                let newDangers = []
+                for (const [_, value] of Object.entries(allNewBlackMoves)){
+                    let moves = value.pieceMoves
+                    newDangers.push(...moves)
+                }         
+                //calcular los nuevos moviemtos para las blancas
+                let newMoves = calculateAllPossibleMoves(newBoard, dangerSquare.current)
+                //Setear los movimientos de las blancas
+                setAllMoves(newMoves)
                 //set chat
                 setChat(newChat)
                 //set turn
@@ -74,7 +98,6 @@ export const Board = () => {
            coordinates: coord,
             piece: piece
         }); 
-        console.log(allMoves)
         setValidMoves(allMoves[coord].pieceMoves)
         
         
@@ -151,10 +174,9 @@ export const Board = () => {
             setBoard(newBoard)
             //Estos van a ser todos los nuevos movimientos que tenemos en nuestra nueva posición
             let allNewMoves = calculateAllPossibleMoves(newBoard, dangerSquare.current)
-            console.log(allNewMoves)
             //Tenemos que actualizar los nuevos peligros
             let newDangers = []
-            for (const [_, value] of Object.entries(allMoves)){
+            for (const [_, value] of Object.entries(allNewMoves)){
                 let moves = value.pieceMoves
                 newDangers.push(...moves)
             }
@@ -165,8 +187,18 @@ export const Board = () => {
             //le damos la vuelta a la matriz
             let blackBoard = invertirMatriz(newBoard)
             let blackOptions = calculateAllPossibleMoves(blackBoard, dangerSquare.current)
-            blackMoves.current = blackOptions
-            console.log(blackOptions)
+
+            //Filtrar los black moves para eliminar los vacios de la lista. Porque la IA es absolutamente GILIPOLLAS
+            let filteredMoves = {}
+            for (const [key, value] of Object.entries(blackOptions)){
+                let moves = value.pieceMoves
+                let piece = value.piece
+                if (moves.length != 0){
+                    filteredMoves[key] = {piece : piece, pieceMoves: moves}
+                }
+            }
+            blackMoves.current = filteredMoves
+            console.log(filteredMoves)
             //Controlar jaque mate y ahogado aqui, si todos los posibles movimientos están vacios
             
             let blackMovesCounter =  0
@@ -180,7 +212,7 @@ export const Board = () => {
             }else if(blackMovesCounter == 0 && endGame == "KEEP PLAYING"){
                 setEndgame("DROWNED")
             }
-            //setTurn("black")
+            setTurn("black")
             
             
         }else{

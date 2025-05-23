@@ -8,6 +8,14 @@ export function calcCoordinatesbyIndex(rowIndex, colIndex){
     return  xCoord + "" + y
 }
 
+
+export function invertirCasilla(square){
+    let x = 7 - coordinates.indexOf(square[0])
+    let y = 8 - parseInt(square[1])
+
+    return {x: x, y:y}
+}
+
 export function getIndexByCoord(coord){
     const x = coordinates.indexOf(coord[0])
     const y = parseInt(coord[1]) - 1

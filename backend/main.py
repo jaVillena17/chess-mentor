@@ -20,6 +20,7 @@ class ChatLogs(BaseModel):
 class BoardHistory(BaseModel):
     current: List
     history_moves: str
+    possible_moves : Dict[str, Dict]
 
 app = FastAPI()
 
@@ -96,13 +97,14 @@ async def calc_move(board : BoardHistory):
     url = "http://localhost:11434/api/chat"
     current_board = board.current
     historic = board.history_moves
-    format = ""
+    moves = board.possible_moves
 
     prompt_messages = [
         {"role": "system", "content": "You are Magnus Carlsen, the greatest chess player in history. You specialize in reasoning through all your moves and providing the best next move considering the current positions and the moves played so far. You are playing as White, which on the current board are represented by uppercase letters. You must respond with the piece you want to move (just the letter of the piece), the destination square in algebraic notation, and an explanation of no more than 150 words as to why this move is the best given the current position and move history. Return the answer in JSON format. I can only answer questions about Chess. "},
         {"role": "system", "content": f"The current board is: {current_board}"},{ "role": "system", "content": f"The moves so far have been: {historic}"},
-        {"role": "user", "content": "Tell me which piece you are going to move (pieceToMove), where was that piece located (pieceOrigin), the destination square (pieceDestination), and an explanation of the move (moveExplanation). You are playing as Black (lowercase letters). Your explanation must match pieceOrigin and pieceDestination"}]
-
+        {"role": "system", "content": f"This are the current possible moves that you can do. Move list:  {moves}. pieceOrigin would be the key of the json. Piece to move would be inside the value of the of that key, as 'piece'. pieceDestination MUST be one of the moves designed under that same key values. You cant chose one of the position keys that have an empty move list."},
+        {"role": "user", "content": "From that list of moves, give me square where the piece you want to move is located (pieceOrigin) (Its really important that you dont hallucinate this pieceOrigin, it must always be a key of the move list passed to you), then the piece (pieceToMove), the destination square (pieceDestination)(its really important that you dont hallucinate this pieceDestination. It most always be one of the values in the list passed to you on the key that you selected as pieceOrigin), and an explanation of the move (moveExplanation). Your explanation must match pieceOrigin and pieceDestination. For example, you chose one originKey of the json to be pieceOrigin, for piece you need give me the piece in that key, and for pieceDestination you have to choose one on the Move List. NEVER HALLUCINATE"}]
+    print(prompt_messages)
     data_to_send = {
         "model": "llama3.2:latest",
         "messages" : prompt_messages,
@@ -110,10 +112,10 @@ async def calc_move(board : BoardHistory):
         "format":  {
             "type": "object",
             "properties": {
-            "pieceToMove": {"type": "string"},
-            "pieceOrigin": {"type": "string"},
-            "pieceDestination": {"type": "string"},
-            "moveExplanation": {"type": "string"}
+                "pieceOrigin": {"type": "string"},
+                "pieceToMove": {"type": "string"},
+                "pieceDestination": {"type": "string"},
+                "moveExplanation": {"type": "string"}
             }
         },
         "required": ["priceToMove", "pieceDestination", "moveExplanation"]
