@@ -21,7 +21,7 @@ export const Board = () => {
     const [validMoves, setValidMoves] = useState([])
     const [allMoves, setAllMoves] = useState(calculateAllPossibleMoves(board))
     const [turn, setTurn] = useState("white")
-    const endGame = endgameState((state) => state.endgameStatus)
+    //const endGame = endgameState((state) => state.endgameStatus)
     const setEndgame = endgameState((state) => state.setEndgameStatus)
 
     let blackMoves = useRef({})
@@ -29,7 +29,7 @@ export const Board = () => {
     const chat = useChatStore((state) => state.chat)
     const setChat = useChatStore((state) => state.setChat)
     useEffect(() => {
-        if(turn == "black"){
+        if(turn == "black" && turn != "FINISHED"){
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
             body : JSON.stringify({ "current" : board , "history_moves" : movements.current, "possible_moves": blackMoves.current}),
@@ -49,7 +49,7 @@ export const Board = () => {
                 }else{
                     destination = invertirCasilla(blackMoves.current[content.pieceOrigin].pieceMoves[0])
                 }
-                 
+                    
                 let explanation = content.moveExplanation
 
                 //Hacemos una copia de la board
@@ -57,13 +57,12 @@ export const Board = () => {
                 //Copiamos vamos copiando los valores en el nuevo board
                 board.forEach((row, indexX) => {
                     let newRow = []
-
-                    row.forEach((_, indexY) => {
+                        row.forEach((_, indexY) => {
                         newRow.push(board[indexX][indexY])
                     })
 
                     newBoard.push(newRow)
-                    
+                        
                 })
                 newBoard[origin.x][origin.y] = 0
                 newBoard[destination.x][destination.y] = piece
@@ -77,14 +76,48 @@ export const Board = () => {
                     [Date.now()] : { "from_" :"assistant","text" : explanation},
                 }
 
-                //Calcular si hay jaque
-
                 //calcular los nuevos moviemtos para las blancas
                 let newMoves = calculateAllPossibleMoves(newBoard)
                 //Setear los movimientos de las blancas
                 setAllMoves(newMoves)
                 //set chat
                 setChat(newChat)
+                //set turn
+                setTurn("white")
+            }).catch(() => {
+                let moveChosen = Object.entries(blackMoves.current)[0]
+                console.log(blackMoves.current)
+                console.log(moveChosen)
+                //we have to invert bow origin and destination
+                let origin = invertirCasilla(moveChosen[0])
+                //Sacamos la pieza nosotros a mano para que no la lie la ia
+                let piece =  moveChosen[1].piece.toLowerCase()
+                //Comprobamos si su destination está dento de las opciones que le hemos dado, si no, cogemos el primero de la lista
+                let destination = invertirCasilla(moveChosen[1].pieceMoves[0])
+
+                //Hacemos una copia de la board
+                let newBoard = [];
+                //Copiamos vamos copiando los valores en el nuevo board
+                board.forEach((row, indexX) => {
+                    let newRow = []
+                        row.forEach((_, indexY) => {
+                        newRow.push(board[indexX][indexY])
+                    })
+
+                    newBoard.push(newRow)
+                        
+                })
+                newBoard[origin.x][origin.y] = 0
+                newBoard[destination.x][destination.y] = piece
+
+                setBoard(newBoard)
+                turnCounter.current++
+                movements.current += ` ${piece}${destination.pieceDestination} `
+
+                //calcular los nuevos moviemtos para las blancas
+                let newMoves = calculateAllPossibleMoves(newBoard)
+                //Setear los movimientos de las blancas
+                setAllMoves(newMoves)
                 //set turn
                 setTurn("white")
             })
@@ -165,8 +198,13 @@ export const Board = () => {
             
             //Comprobamos jaque
             let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
+            let endGameCopy = ""
             if (check){
                 setEndgame("check-black")
+                endGameCopy = "check-black"
+            }else{
+                setEndgame("KEEP PLAYING")
+                endGameCopy = "KEEP PLAYING"
             }
 
             //Eliminamos la última pieza de la memoria
@@ -180,26 +218,8 @@ export const Board = () => {
             let blackBoard = invertirMatriz(newBoard)
             //Calculamos movimientos para las piezas negras con dichos peligros
             let blackOptions = calculateAllPossibleMoves(blackBoard)
-    
-            //Filtrar los black moves para eliminar los vacios de la lista. Porque la IA es absolutamente GILIPOLLAS
-            let filteredMoves = {}
-            for (const [key, value] of Object.entries(blackOptions)){
-                let moves = value.pieceMoves
-                let piece = value.piece
-                if (moves.length != 0){
-                    filteredMoves[key] = {piece : piece, pieceMoves: moves}
-                }
-            }
 
-            
-            //Aquí tenemos que comprobar si es jaque
-            //if(endGame.includes("check")){
-
-            //}
-            
-            
-
-            blackMoves.current = filteredMoves
+            blackMoves.current = blackOptions
             //Controlar jaque mate y ahogado aqui, si todos los posibles movimientos están vacios
             let blackMovesCounter =  0
             for (const [_, value] of Object.entries(blackOptions)){
@@ -207,10 +227,12 @@ export const Board = () => {
                 blackMovesCounter += moves.length
             }
 
-            if(blackMovesCounter == 0 && endGame == "check"){
+            if(blackMovesCounter == 0 && endGameCopy.includes("check")){
                 setEndgame("CHECKMATE")
-            }else if(blackMovesCounter == 0 && endGame == "KEEP PLAYING"){
+                setTurn("FINISHED")
+            }else if(blackMovesCounter == 0 && endGameCopy == "KEEP PLAYING"){
                 setEndgame("DROWNED")
+                setTurn("FINISHED")
             }
             setTurn("black")
             
@@ -222,7 +244,6 @@ export const Board = () => {
             setValidMoves([])
             setBoard(newBoard)
         }
-        
     }
 
     return (

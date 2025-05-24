@@ -80,7 +80,7 @@ export function pawnMoves(position, board){
     let y = position.Y
     let moves = []
 
-    if(board[x][y] != undefined && board[x][y] == 0){
+    if(x >= 0 && board[x][y] != undefined && board[x][y] == 0){
         let valid = calcCoordinatesbyIndex(x, y)
         moves.push(valid)
     }
@@ -97,12 +97,12 @@ export function pawnMoves(position, board){
     let left = position.Y - 1
 
 
-    if(board[x][left] != undefined && isBlack(board[x][left])){
+    if(x >= 0 && board[x][left] != undefined && isBlack(board[x][left])){
         let valid = calcCoordinatesbyIndex(x, left)
         moves.push(valid)
     }
 
-    if(board[x][right] != undefined && isBlack(board[x][right])){
+    if(x >= 0 && board[x][right] != undefined && isBlack(board[x][right])){
         let valid = calcCoordinatesbyIndex(x, right)
         moves.push(valid)
     }
@@ -846,8 +846,18 @@ export function calculateAllPossibleMoves(board){
         })
         totalMoves[key] = {piece: value.piece, pieceMoves: safeMoves}
         safeMoves = []
-    }
-    console.log(safeMoves)  
-    return totalMoves
+    } 
+
+
+    // filtramos la lista
+    let filteredMoves = {}
+            for (const [key, value] of Object.entries(totalMoves)){
+                let moves = value.pieceMoves
+                let piece = value.piece
+                if (moves.length != 0){
+                    filteredMoves[key] = {piece : piece, pieceMoves: moves}
+                }
+            }
+    return filteredMoves
 }
 

@@ -5,7 +5,7 @@ export const ChatMessages = () => {
 
     const chat = useChatStore((state) => state.chat)
     return (
-        <div className="chat-display">
+        <div className="chat-display" id="chat-display">
             {    
                 Object.keys(chat).map( (input, index) => {
                     return <Message 

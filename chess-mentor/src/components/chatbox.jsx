@@ -10,6 +10,10 @@ export const Chatbox = () => {
     const setChat = useChatStore((state) => state.setChat)
     //const [chat, setChat] = useState({})
     
+    useEffect(() => {
+        let container = document.getElementById("chat-display")
+        container.scrollTop = container.scrollHeight
+    }, [chat])
 
     const board = useBoardStore((state) => state.board)
 
