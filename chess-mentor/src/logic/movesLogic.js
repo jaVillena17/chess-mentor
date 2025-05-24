@@ -1,3 +1,5 @@
+import { invertirMatriz } from "./logic";
+
 export const coordinates = ["h","g","f","e","d","c","b","a"];
 export const whitePieces = ["P","R","N","B","Q","K"]
 
@@ -42,7 +44,7 @@ export function isBlack(piece){
     return piece.toLowerCase() == piece
 }
 
-export function calcMoves(piece, board, posicionesAmenazadas){
+export function calcMoves(piece, board){
     let moves = []
     let pieceType = piece.piece
 
@@ -63,7 +65,7 @@ export function calcMoves(piece, board, posicionesAmenazadas){
             moves = queenMoves(translateCoordinates(piece.coordinates), board)
             break;
         case "K":
-            moves = kingMoves(translateCoordinates(piece.coordinates), board, posicionesAmenazadas)
+            moves = kingMoves(translateCoordinates(piece.coordinates), board)
             break;
         default:
             console.log(pieceType)
@@ -703,7 +705,7 @@ export function queenMoves(position, board){
     return moves
 }
 
-export function kingMoves(position, board, posicionesAmenazadas){
+export function kingMoves(position, board){
     let x = position.X 
     let y = position.Y
     
@@ -713,7 +715,7 @@ export function kingMoves(position, board, posicionesAmenazadas){
     for(let i = -1; i <= 1; i++){
         if(board[x+i] != undefined){
             for(let j = -1; j <= 1; j++){
-                if(board[x+i][y+j] != undefined && !whitePieces.includes(board[x+i][y+j]) && !posicionesAmenazadas.includes(calcCoordinatesbyIndex(x+i, y+j))){
+                if(board[x+i][y+j] != undefined && !whitePieces.includes(board[x+i][y+j])){
                     let valid = calcCoordinatesbyIndex(x+i, y+j)
                     moves.push(valid)
                 }
@@ -752,9 +754,9 @@ export function kingMoves(position, board, posicionesAmenazadas){
 }
 
 // Función que calcula un jaque
-export function checkCheck(piece, board, danger){
-    //Calculamos los próximos posibles movimientos de la pieza que acabamos de mover
-    let nextMoves = calcMoves(piece, board, danger)
+export function checkCheck(piece, board){
+    //Calculamos todos próximos posibles movimientos
+    let nextMoves = calcMoves(piece, board)
     let check = false
     //Recorremos los movimientos posibles. Si en alguno está el rey, es jaque
     nextMoves.forEach(move => {
@@ -762,7 +764,7 @@ export function checkCheck(piece, board, danger){
         let index = translateCoordinates(move)
         //Si está en rey en la posición
         if (board[index.X][index.Y] == "k"){
-            check =  "JAQUE"
+            check =  true
         }
     })
 
@@ -770,18 +772,82 @@ export function checkCheck(piece, board, danger){
     return check
 }
 
-export function calculateAllPossibleMoves(board, posicionesAmenazadas){
+export function calculateAllPossibleMoves(board){
+    //Calculamos todos nuestros posibles movimientos en bruto
     let allMoves = {}
     board.forEach((row, x) => {
 
         row.forEach((square, y) => {
             if (whitePieces.includes(square)){ 
                 let piece = {piece : square, coordinates : calcCoordinatesbyIndex(x, y)}
-                let moves = calcMoves(piece, board, posicionesAmenazadas)
-                allMoves[piece.coordinates] = {piece : piece.piece, pieceMoves : moves}
+                let moves = calcMoves(piece, board)
+                if(moves.length > 0) {
+                    allMoves[piece.coordinates] = {piece : piece.piece, pieceMoves : moves}
+                }
+                
             }
         })
 
     })
-    return allMoves
+    //Una vez tenemos todos nuestros movimientos, tenemos que eliminar aquellos que nos pondrían en jaque de forma directa
+    let totalMoves = {}
+    let safeMoves = []
+    for (const [key, value] of Object.entries(allMoves)){
+        let moves = value.pieceMoves
+        // Por cada hipotetico movimiento, calculamos todos los movimientos del rival y vemos si nos pondrían en jaque
+        moves.forEach(move => {
+            //Hacemos una copia de la board
+            let newBoard = [];
+            //Copiamos vamos copiando los valores en el nuevo board
+            board.forEach((row, indexX) => {
+                let newRow = []
+
+                row.forEach((_, indexY) => {
+                    newRow.push(board[indexX][indexY])
+                })
+
+                newBoard.push(newRow)
+                
+            })
+
+            let isSafe = true
+
+            //Sobreescribimos los valores para ese movimiento
+            let origin = translateCoordinates(key)
+            let piece = value.piece
+            let destination = translateCoordinates(move)
+
+            newBoard[origin.X][origin.Y] = 0
+            newBoard[destination.X][destination.Y] = piece
+
+            //calculamos los movimientos del rival en esta nueva
+            let rivalBoard = invertirMatriz(newBoard)
+            rivalBoard.forEach((row, x) => {
+
+                row.forEach((square, y) => {
+                    if (whitePieces.includes(square)){ 
+                        let piece = {piece : square, coordinates : calcCoordinatesbyIndex(x, y)}
+                        let moves = calcMoves(piece, rivalBoard)
+                        
+                        //Queremos recorrer estos movimientos y ver si alguno provoca jaque
+                        moves.forEach(move => {
+                            //Comprobamos si algun de estos movimientos es un check
+                            let coords = translateCoordinates(move)
+                            if(rivalBoard[coords.X][coords.Y] == "k"){
+                                isSafe = false
+                            }
+                        })
+                    }
+                })
+            })
+            if(isSafe){
+                safeMoves.push(move)
+            }
+        })
+        totalMoves[key] = {piece: value.piece, pieceMoves: safeMoves}
+        safeMoves = []
+    }
+    console.log(safeMoves)  
+    return totalMoves
 }
+

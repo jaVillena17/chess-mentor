@@ -3,7 +3,7 @@ import { Square } from "./square";
 import '../static/css/board.css'
 import { useBoardStore } from "../logic/boardGlobalState";
 import { useChatStore } from "../logic/chatGlobalState";
-import { getIndexByCoord, calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllPossibleMoves, invertirCasilla } from "../logic/movesLogic";
+import { calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllPossibleMoves, invertirCasilla } from "../logic/movesLogic";
 import { endgameState } from "../logic/endgameGlobalState";
 import { invertirMatriz } from "../logic/logic";
 
@@ -15,12 +15,11 @@ export const Board = () => {
     const destinyPos = useRef("")
     const turnCounter = useRef(1)
     const movements = useRef("")
-    const dangerSquare = useRef([])
     const board = useBoardStore((state) => state.board)
     const setBoard = useBoardStore((state) => state.setBoard)
     const [draggedPiece, setDraggedPiece] = useState({coordinates: null, piece: null})
     const [validMoves, setValidMoves] = useState([])
-    const [allMoves, setAllMoves] = useState(calculateAllPossibleMoves(board, dangerSquare.current))
+    const [allMoves, setAllMoves] = useState(calculateAllPossibleMoves(board))
     const [turn, setTurn] = useState("white")
     const endGame = endgameState((state) => state.endgameStatus)
     const setEndgame = endgameState((state) => state.setEndgameStatus)
@@ -31,8 +30,6 @@ export const Board = () => {
     const setChat = useChatStore((state) => state.setChat)
     useEffect(() => {
         if(turn == "black"){
-            //fetch
-            console.log(blackMoves.current)
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
             body : JSON.stringify({ "current" : board , "history_moves" : movements.current, "possible_moves": blackMoves.current}),
@@ -55,7 +52,19 @@ export const Board = () => {
                  
                 let explanation = content.moveExplanation
 
-                let newBoard = [...board]
+                //Hacemos una copia de la board
+                let newBoard = [];
+                //Copiamos vamos copiando los valores en el nuevo board
+                board.forEach((row, indexX) => {
+                    let newRow = []
+
+                    row.forEach((_, indexY) => {
+                        newRow.push(board[indexX][indexY])
+                    })
+
+                    newBoard.push(newRow)
+                    
+                })
                 newBoard[origin.x][origin.y] = 0
                 newBoard[destination.x][destination.y] = piece
 
@@ -68,18 +77,10 @@ export const Board = () => {
                     [Date.now()] : { "from_" :"assistant","text" : explanation},
                 }
 
-                //Invertir la new board
-                let invertedBoard = invertirMatriz(newBoard)
-                //Calcular los nuevos movimientos posibles
-                let allNewBlackMoves = calculateAllPossibleMoves(invertedBoard, dangerSquare.current)
-                //Tenemos que actualizar los nuevos peligros
-                let newDangers = []
-                for (const [_, value] of Object.entries(allNewBlackMoves)){
-                    let moves = value.pieceMoves
-                    newDangers.push(...moves)
-                }         
+                //Calcular si hay jaque
+
                 //calcular los nuevos moviemtos para las blancas
-                let newMoves = calculateAllPossibleMoves(newBoard, dangerSquare.current)
+                let newMoves = calculateAllPossibleMoves(newBoard)
                 //Setear los movimientos de las blancas
                 setAllMoves(newMoves)
                 //set chat
@@ -161,10 +162,11 @@ export const Board = () => {
                     //Movemos la torre a donde tiene que ir
                     newBoard[7][5] = "R"
                 }
+            
             //Comprobamos jaque
-            let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard, dangerSquare.current)
+            let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
             if (check){
-                setEndgame(check)
+                setEndgame("check-black")
             }
 
             //Eliminamos la última pieza de la memoria
@@ -172,22 +174,13 @@ export const Board = () => {
             dragCompleted.current = false
             setValidMoves([])
             setBoard(newBoard)
-            //Estos van a ser todos los nuevos movimientos que tenemos en nuestra nueva posición
-            let allNewMoves = calculateAllPossibleMoves(newBoard, dangerSquare.current)
-            //Tenemos que actualizar los nuevos peligros
-            let newDangers = []
-            for (const [_, value] of Object.entries(allNewMoves)){
-                let moves = value.pieceMoves
-                newDangers.push(...moves)
-            }
-            //Actualizamos los peligros
-            dangerSquare.current = newDangers
-            
-            //Calculamos movimientos para las piezas negras con dichos peligros
+
+            //Tenemos que valorar los nuevas casillas que ponen en peligro a nuestras piezas en base a nuestro nuevo movimiento
             //le damos la vuelta a la matriz
             let blackBoard = invertirMatriz(newBoard)
-            let blackOptions = calculateAllPossibleMoves(blackBoard, dangerSquare.current)
-
+            //Calculamos movimientos para las piezas negras con dichos peligros
+            let blackOptions = calculateAllPossibleMoves(blackBoard)
+    
             //Filtrar los black moves para eliminar los vacios de la lista. Porque la IA es absolutamente GILIPOLLAS
             let filteredMoves = {}
             for (const [key, value] of Object.entries(blackOptions)){
@@ -197,10 +190,17 @@ export const Board = () => {
                     filteredMoves[key] = {piece : piece, pieceMoves: moves}
                 }
             }
-            blackMoves.current = filteredMoves
-            console.log(filteredMoves)
-            //Controlar jaque mate y ahogado aqui, si todos los posibles movimientos están vacios
+
             
+            //Aquí tenemos que comprobar si es jaque
+            //if(endGame.includes("check")){
+
+            //}
+            
+            
+
+            blackMoves.current = filteredMoves
+            //Controlar jaque mate y ahogado aqui, si todos los posibles movimientos están vacios
             let blackMovesCounter =  0
             for (const [_, value] of Object.entries(blackOptions)){
                 let moves = value.pieceMoves
@@ -213,7 +213,6 @@ export const Board = () => {
                 setEndgame("DROWNED")
             }
             setTurn("black")
-            
             
         }else{
             let newBoard = [...board]
