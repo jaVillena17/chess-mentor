@@ -1,26 +1,17 @@
 import json
-from typing import Dict, List
-
+from models import ChatLogs, BoardHistory
+from dbModels import User
 from fastapi import FastAPI, Request, Body
 import uvicorn
-from pydantic import BaseModel, Json
+from database import get_db
+from fastapi import Depends
+
 import httpx
 from fastapi.middleware.cors import CORSMiddleware
-from pyexpat.errors import messages
+from sqlalchemy.orm import Session
+from backend import models, db_schema
+from passlib.context import CryptContext
 
-
-class Message(BaseModel):
-    from_: str
-    text: str
-
-class ChatLogs(BaseModel):
-    messages: Dict[str, Message]
-    board : List
-
-class BoardHistory(BaseModel):
-    current: List
-    history_moves: str
-    possible_moves : Dict[str, Dict]
 
 app = FastAPI()
 
@@ -40,6 +31,20 @@ app.add_middleware(
 @app.get('/')
 async def root():
     return "Hola FastApi"
+
+# endpoint de registro de usuario
+@app.post('/new-user')
+def create_user(user: db_schema.UserCreate, db : Session = Depends(get_db)):
+    print(user)
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        contraseña=user.contraseña
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 # endpoint de chat
 @app.post('/chatbox-msg')
