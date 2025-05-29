@@ -1,19 +1,32 @@
 import json
+
+from networkx.algorithms.tree.mst import ALGORITHMS
+
 from models import ChatLogs, BoardHistory
 from dbModels import User
-from fastapi import FastAPI, Request, Body
+from fastapi import FastAPI, Request, Body, HTTPException
 import uvicorn
 from database import get_db
 from fastapi import Depends
-
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt, JWTError
+from passlib.context import CryptContext
 import httpx
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from backend import models, db_schema
 from passlib.context import CryptContext
+from datetime import datetime, timedelta
 
+ALGORITHM = "HS256"
+ACCESS_TOKEN_DURATION = 60
+SECRET_KEY="d97ac5b0a6fd0f7c04a176a6ad59049318486a2a3f3a7d4db327d8f57451d9f2"
+
+crypt = CryptContext(schemes=['bcrypt'], deprecated="auto")
 
 app = FastAPI()
+
+oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 
 origins = [
     "http://localhost:5173"
@@ -27,6 +40,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def get_current_user(token: str = Depends(oauth2), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="No se pudo validar el token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+
+    except JWTError:
+        raise credentials_exception
+
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise credentials_exception
+
+    return user
+
 
 @app.get('/')
 async def root():
@@ -35,16 +70,50 @@ async def root():
 # endpoint de registro de usuario
 @app.post('/new-user')
 def create_user(user: db_schema.UserCreate, db : Session = Depends(get_db)):
-    print(user)
-    db_user = User(
+    db_user = db.query(User).filter(
+        (User.username == user.username) | (User.email == user.email)
+    ).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="El usuario ya existe en la base de datos")
+    new_user = User(
         username=user.username,
         email=user.email,
-        contraseña=user.contraseña
+        contraseña=crypt.hash(user.contraseña)
     )
-    db.add(db_user)
+    db.add(new_user)
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(new_user)
+    return new_user
+
+@app.post("/login")
+async def login(form: OAuth2PasswordRequestForm = Depends(), db : Session = Depends(get_db)):
+    user = form.username
+
+    db_user = db.query(User).filter(
+        (User.username == user)
+    ).first()
+
+    if not db_user:
+        raise HTTPException(status_code=400, detail="El usuario no existe en la base de datos")
+
+    if not crypt.verify(form.password, db_user.contraseña):
+        raise HTTPException(status_code=400, detail="Contraseña incorrecta")
+
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_DURATION)
+
+    access_token = {"sub": db_user.username, "exp": expire, }
+    return {"access_token": jwt.encode(access_token, SECRET_KEY,algorithm=ALGORITHM), "token_type": "bearer"}
+
+
+@app.get('/users/me')
+async def me(user: User = Depends(get_current_user)):
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email
+    }
+
+
 
 # endpoint de chat
 @app.post('/chatbox-msg')

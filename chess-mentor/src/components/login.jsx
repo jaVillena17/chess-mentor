@@ -23,6 +23,7 @@ export const Login = () => {
     }
 
     const createUsuario = () => {
+        //Obtenemos los datos del formulario
         fetch('http://127.0.0.1:8000/new-user', {
             method : "POST",
             body: JSON.stringify({username : "Javi", email: "javillena13@gmail.com", contraseña: "1234"}),
@@ -30,6 +31,19 @@ export const Login = () => {
         })
         .then(response => response.json())
         .then(data => {console.log(data)})
+    }
+
+    const loginUsuario = () => {
+        //Obtenemos los datos del fomrulario, hay que pasarlo como bearer y form data
+        fetch('http://127.0.0.1:8000/new-user', {
+            method : "POST",
+            body: JSON.stringify({username : "Javi", password: "1234"}),
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            localStorage.set("currentUser", data)
+        })
     }
 
     //Cuando se cargue el componente, añadimos los eventos onClick
@@ -48,6 +62,9 @@ export const Login = () => {
         registerButton.addEventListener('click', createUsuario)
 
 
+        let loginButton = document.querySelector("#register-but")
+        loginButton.addEventListener('click', loginUsuario)
+
 
         //Esto se supone que se hace para evitar leaks de memoria
         return(() => {
@@ -56,6 +73,8 @@ export const Login = () => {
             })
 
             registerButton.removeEventListener('click', createUsuario)
+
+            loginButton.removeEventListener('click', loginUsuario)
         })
     }, [])
 
