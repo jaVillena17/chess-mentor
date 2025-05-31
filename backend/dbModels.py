@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date
 from database import Base
 
 class User(Base):
@@ -8,3 +8,25 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     contraseña = Column(String)
+
+class Game:
+    __tablename__ = "Partida"
+
+    id_partida = Column(Integer, primary_key=True, index=True)
+    movimientos = Column(String, unique=False, index=True)
+    ganador = Column(String, unique=False, index=True)
+    fecha = Column(Date, unique=False, index=True)
+
+class GameUser:
+    __tablename__ = "Usuario_Partida"
+
+    id_partida = Column(Integer, primary_key=True, index=True)
+    id_usuario = Column(Integer, primary_key=True, index=True)
+
+class Valoracion:
+    __tablename__ = "Valoracion"
+
+    id_valoracion = Column(Integer, primary_key=True, index=True)
+    rating = Column(Integer, primary_key=False, index=True)
+    consejos = Column(Integer, primary_key=False, index=True)
+    id_partida = Column(Integer, primary_key=False, index=True)

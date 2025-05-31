@@ -2,7 +2,7 @@ import json
 
 from networkx.algorithms.tree.mst import ALGORITHMS
 
-from models import ChatLogs, BoardHistory
+from models import ChatLogs, BoardHistory, EndGameData
 from dbModels import User
 from fastapi import FastAPI, Request, Body, HTTPException
 import uvicorn
@@ -202,6 +202,32 @@ async def calc_move(board : BoardHistory):
             return response.json()
         except httpx.HTTPStatusError as http_error:
             return {"error": f"HTTP error occurred: {http_error}, Status Code: {http_error.response.status_code}"}
+        
+
+@app.post('/endgame')
+async def endgame(game_data : EndGameData, database: Session =  Depends(get_db)):
+    url = "http://localhost:11434/api/chat"
+
+    prompt_messages = [
+        {"role": "system",
+         "content": "You are Magnus Carlsen, the greatest chess player in history. You specialize in reasoning through all your moves and providing the best next move considering the current positions and the moves played so far. You are playing as White, which on the current board are represented by uppercase letters. You must respond with the piece you want to move (just the letter of the piece), the destination square in algebraic notation, and an explanation of no more than 150 words as to why this move is the best given the current position and move history. Return the answer in JSON format. I can only answer questions about Chess. "},
+        {"role": "user",
+         "content": ""}]
+    data_to_send = {
+        "model": "llama3.2:latest",
+        "messages": prompt_messages,
+        "stream": False,
+    }
+
+    # we have to save the game in multiple tables usuario - partida // partida - valoracion
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(url, json=data_to_send)
+            return response.json()
+        except httpx.HTTPStatusError as http_error:
+            return {"error": f"HTTP error occurred: {http_error}, Status Code: {http_error.response.status_code}"}
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

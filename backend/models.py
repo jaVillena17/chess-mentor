@@ -14,3 +14,17 @@ class BoardHistory(BaseModel):
     history_moves: str
     possible_moves : Dict[str, Dict]
 
+class Partida(BaseModel):
+    moves: str
+    date: str
+    winner: str
+    username : str
+
+class EndGameData(BaseModel):
+    partida : Partida
+
+
+
+
+
+

@@ -6,7 +6,7 @@ import { useChatStore } from "../logic/chatGlobalState";
 import { calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllPossibleMoves, invertirCasilla } from "../logic/movesLogic";
 import { endgameState } from "../logic/endgameGlobalState";
 import { invertirMatriz } from "../logic/logic";
-
+import { winnerState } from "../logic/endgameGlobalState";
 
 
 export const Board = () => {
@@ -23,13 +23,14 @@ export const Board = () => {
     const [turn, setTurn] = useState("white")
     //const endGame = endgameState((state) => state.endgameStatus)
     const setEndgame = endgameState((state) => state.setEndgameStatus)
+    const setWinner = winnerState((state) => state.setWinner)
 
     let blackMoves = useRef({})
 
     const chat = useChatStore((state) => state.chat)
     const setChat = useChatStore((state) => state.setChat)
     useEffect(() => {
-        if(turn == "black" && turn != "FINISHED"){
+        if(turn == "black"){
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
             body : JSON.stringify({ "current" : board , "history_moves" : movements.current, "possible_moves": blackMoves.current}),
@@ -86,8 +87,6 @@ export const Board = () => {
                 setTurn("white")
             }).catch(() => {
                 let moveChosen = Object.entries(blackMoves.current)[0]
-                console.log(blackMoves.current)
-                console.log(moveChosen)
                 //we have to invert bow origin and destination
                 let origin = invertirCasilla(moveChosen[0])
                 //Sacamos la pieza nosotros a mano para que no la lie la ia
@@ -121,7 +120,13 @@ export const Board = () => {
                 //set turn
                 setTurn("white")
             })
+            
+        }else if (turn == "FINISHED"){
+            //hacer un post con la partida
+            
         }
+
+
     }, [turn])
 
 
@@ -147,6 +152,7 @@ export const Board = () => {
 
         if(targetPiece == "k"){
             setEndgame("YOU WON")
+            setWinner("YOU WON")
         }
     }
 
@@ -230,10 +236,13 @@ export const Board = () => {
             if(blackMovesCounter == 0 && endGameCopy.includes("check")){
                 setEndgame("CHECKMATE")
                 setTurn("FINISHED")
+                setWinner("YOU WON")
             }else if(blackMovesCounter == 0 && endGameCopy == "KEEP PLAYING"){
                 setEndgame("DROWNED")
                 setTurn("FINISHED")
+                setWinner("TIE")
             }
+
             setTurn("black")
             
         }else{
