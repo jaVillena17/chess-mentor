@@ -24,9 +24,14 @@ export const Login = () => {
 
     const createUsuario = () => {
         //Obtenemos los datos del formulario
+        let username = Document.querySelector("#userRegister").value
+        let email = Document.querySelector("#emailRegister").value
+        let pass = Document.querySelector("#passRegister").value
+
+        //Hacemos el post
         fetch('http://127.0.0.1:8000/new-user', {
             method : "POST",
-            body: JSON.stringify({username : "Javi", email: "javillena13@gmail.com", contraseña: "1234"}),
+            body: JSON.stringify({username : username, email: email, contraseña: pass}),
             headers: { "Content-Type": "application/json" }
         })
         .then(response => response.json())
@@ -35,10 +40,17 @@ export const Login = () => {
 
     const loginUsuario = () => {
         //Obtenemos los datos del fomrulario, hay que pasarlo como bearer y form data
-        fetch('http://127.0.0.1:8000/new-user', {
+        let username = Document.querySelector("#user").value
+        let pass = Document.querySelector("#pass").value
+
+        let data = new FormData()
+        data.append("username", username)
+        data.append("password", pass)
+
+        fetch('http://127.0.0.1:8000/login', {
             method : "POST",
-            body: JSON.stringify({username : "Javi", password: "1234"}),
-            headers: { "Content-Type": "application/json" }
+            body: data,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
         })
         .then(response => response.json())
         .then(data => {
@@ -53,16 +65,11 @@ export const Login = () => {
             span.addEventListener('click', changeForm)
         })
 
-        //let loginButton = document.querySelector("#login-but")
-        //loginButton.addEventListener('click', () => {
-
-        //})
-
         let registerButton = document.querySelector("#register-but")
         registerButton.addEventListener('click', createUsuario)
 
 
-        let loginButton = document.querySelector("#register-but")
+        let loginButton = document.querySelector("#login-but")
         loginButton.addEventListener('click', loginUsuario)
 
 
