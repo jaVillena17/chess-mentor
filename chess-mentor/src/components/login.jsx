@@ -94,7 +94,7 @@ export const Login = () => {
                 <input type="text" name="user" id="user" />
                 <label htmlFor="user">Contraseña</label>
                 <input type="password" name="pass" id="pass" />
-                <button id="login-but">Iniciar Sesión</button>
+                <button id="login-but" className='text-black'>Iniciar Sesión</button>
                 <hr />
                 <p>¿Todavía no tienes usuario?<br/>Haz click <span className='click-span'>aquí</span></p>
             </div>
@@ -109,7 +109,7 @@ export const Login = () => {
 
                 <label htmlFor="passRegister">Contraseña</label>
                 <input type="password" name="pass" id="passRegister" />
-                <button id='register-but'>Registrar Usuario</button>
+                <button id='register-but' className='text-black'>Registrar Usuario</button>
                 <hr />
                 <p>¿Ya tienes un usuario?<br/>Haz click <span className='click-span'>aquí</span></p>
             </div>

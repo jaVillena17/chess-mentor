@@ -12,6 +12,12 @@ export const Header = () => {
             </div>
             
             {views.map((link) => {
+
+                if (link == "Inicio"){
+                    return (
+                        <Link to={`/`} key={link}>{link}</Link>
+                    )
+                }
                 return (
                     <Link to={`/${link}`} key={link}>{link}</Link>
                 )
