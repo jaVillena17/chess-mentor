@@ -41,6 +41,5 @@ export const Square = ({index, piece, row, onDrop, onDragStart, onDragOver, onDr
                     onDragEnd={handleDragEnd} 
                 />}
         </div>
-        
     )
 }

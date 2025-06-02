@@ -4,6 +4,7 @@ import { Login } from './components/login'
 import { Header } from './components/header'
 import { Footer } from './components/footer'
 import { Index } from './components/index'
+import { Faq } from './components/faq'
 
 export const App = () => {
 
@@ -17,6 +18,7 @@ export const App = () => {
           <Route path="/" element={<Index />} />
           <Route path="/game" element={<Game />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/FaQ" element={<Faq />} />
 
         </Routes>
   

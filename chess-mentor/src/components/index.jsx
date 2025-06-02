@@ -1,6 +1,3 @@
-
-
-
 export const Index = () => {
     return (
         <main className="text-white bg-[url(./assets/login-background.png)] bg-contain bg-no-repeat bg-bottom w-[85vw] h-[98vh] absolute right-0 flex flex-col items-center justify-center ">

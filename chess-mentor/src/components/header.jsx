@@ -1,7 +1,7 @@
 import '../static/css/header.css'
 import { Link } from 'react-router-dom'
 
-const views = ["Inicio", "Game", "Social", "FaQ", "Quienés Sómos","Login"]
+const views = ["Inicio", "Game", "FaQ", "Login"]
 
 export const Header = () => {
     return (
