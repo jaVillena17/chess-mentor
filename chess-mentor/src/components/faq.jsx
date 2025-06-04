@@ -19,9 +19,10 @@ export const Faq = () => {
             <h3>¿Tienes alguna duda? Nosotros te la resolvemos</h3>
 
             <div className="flex flex-row items-center justify-center flex-wrap">
-                {preguntas.map((pregunta) => {
+                {preguntas.map((pregunta, index) => {
                     return (
                         <Question
+                            key={index}
                             pregunta = {pregunta[0]}
                             respuesta = {pregunta[1]} 
                         />

@@ -5,6 +5,7 @@ import { Header } from './components/header'
 import { Footer } from './components/footer'
 import { Index } from './components/index'
 import { Faq } from './components/faq'
+import { Profile } from './components/profile'
 
 export const App = () => {
 
@@ -19,6 +20,7 @@ export const App = () => {
           <Route path="/game" element={<Game />} />
           <Route path="/login" element={<Login />} />
           <Route path="/FaQ" element={<Faq />} />
+          <Route path="/profile" element={<Profile />} />
 
         </Routes>
   

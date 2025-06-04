@@ -9,7 +9,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     contraseña = Column(String)
 
-class Game:
+class Game(Base):
     __tablename__ = "Partida"
 
     id_partida = Column(Integer, primary_key=True, index=True)
@@ -17,13 +17,13 @@ class Game:
     ganador = Column(String, unique=False, index=True)
     fecha = Column(Date, unique=False, index=True)
 
-class GameUser:
+class GameUser(Base):
     __tablename__ = "Usuario_Partida"
 
     id_partida = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(Integer, primary_key=True, index=True)
 
-class Valoracion:
+class Valoracion(Base):
     __tablename__ = "Valoracion"
 
     id_valoracion = Column(Integer, primary_key=True, index=True)

@@ -2,8 +2,8 @@ import json
 
 from networkx.algorithms.tree.mst import ALGORITHMS
 
-from models import ChatLogs, BoardHistory, EndGameData
-from dbModels import User
+from models import ChatLogs, BoardHistory, EndGameData, Partida
+from dbModels import User, GameUser, Valoracion
 from fastapi import FastAPI, Request, Body, HTTPException
 import uvicorn
 from database import get_db
@@ -83,7 +83,7 @@ def create_user(user: db_schema.UserCreate, db : Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+    return {"status" : 200, "reponse": f"Usuario creado con éxito: {new_user}"}
 
 @app.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends(), db : Session = Depends(get_db)):
@@ -205,28 +205,80 @@ async def calc_move(board : BoardHistory):
         
 
 @app.post('/endgame')
-async def endgame(game_data : EndGameData, database: Session =  Depends(get_db)):
+async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
     url = "http://localhost:11434/api/chat"
 
     prompt_messages = [
-        {"role": "system",
-         "content": "You are Magnus Carlsen, the greatest chess player in history. You specialize in reasoning through all your moves and providing the best next move considering the current positions and the moves played so far. You are playing as White, which on the current board are represented by uppercase letters. You must respond with the piece you want to move (just the letter of the piece), the destination square in algebraic notation, and an explanation of no more than 150 words as to why this move is the best given the current position and move history. Return the answer in JSON format. I can only answer questions about Chess. "},
-        {"role": "user",
-         "content": ""}]
+        {
+            "role": "system",
+            "content": (
+                "You are Magnus Carlsen, the greatest chess player in history. "
+                "You are now analyzing a full chess game (under 150 moves total) based on its move history. "
+                "Your task is to provide a detailed evaluation of the overall game quality. "
+                "Return three things in JSON format:\n\n"
+                "1. 'summary': A brief assessment (max 150 words) of how the game progressed, including major mistakes, blunders, or brilliant moments.\n"
+                "2. 'advice': Up to 3 tips for the player(s) to improve based on patterns or typical errors you noticed.\n"
+                "3. 'estimated_rating': An estimated ELO rating range (e.g., 1200-1400) that matches the level of play shown.\n\n"
+                "Only base your analysis on the moves provided, not on external knowledge or databases. "
+                "Be honest, constructive, and accurate. Assume standard time control unless otherwise specified."
+            )
+        },
+        {
+            "role": "user",
+            "content": endgame.moves
+        }
+    ]
+
     data_to_send = {
         "model": "llama3.2:latest",
         "messages": prompt_messages,
         "stream": False,
     }
 
-    # we have to save the game in multiple tables usuario - partida // partida - valoracion
+    # obtenemos el id del usuario
+    db_user = db.query(User).filter(
+        (User.username == game_data.partida.username)
+    ).first()
+
+    if not db_user:
+        return "user not logged"
+
+    user_id = db_user.id
+
+    newPartida = Partida(
+        moves= game_data.partida.moves,
+        date= game_data.partida.date,
+        winner= game_data.partida.winner,
+        username= game_data.partida.username
+    )
+
+    # creamos la partida en la base de datos
+    db.add(newPartida)
+    db.commit()
+    id_partida = db.refresh(newPartida)
+
+    # insertamos en partida usuario
+    intermedia = GameUser(id_partida, user_id)
+    db.add(intermedia)
+    db.commit()
+    db.refresh(intermedia)
+
+    # obtenemos la valoracion
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(url, json=data_to_send)
-            return response.json()
+
+            try:
+                valoracion = Valoracion(response.content.estimated_rating, response.content.advice, id_partida)
+            except:
+                valoracion = Valoracion("ERROR", "ERROR", id_partida)
+
+            db.add(valoracion)
+            db.commit()
+            db.refresh(valoracion)
+            return 'ok'
         except httpx.HTTPStatusError as http_error:
             return {"error": f"HTTP error occurred: {http_error}, Status Code: {http_error.response.status_code}"}
-
 
 
 if __name__ == "__main__":

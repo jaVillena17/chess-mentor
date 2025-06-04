@@ -1,9 +1,12 @@
 import { useEffect } from 'react'
 import '../static/css/login.css'
+import { UserSession } from '../logic/userGlobalState'
 
 
 
 export const Login = () => {
+
+    let setUser = UserSession((state) => state.setUser)
 
     function changeForm(){
         //Obtenemos los formularios
@@ -24,9 +27,9 @@ export const Login = () => {
 
     const createUsuario = () => {
         //Obtenemos los datos del formulario
-        let username = Document.querySelector("#userRegister").value
-        let email = Document.querySelector("#emailRegister").value
-        let pass = Document.querySelector("#passRegister").value
+        let username = document.querySelector("#userRegister").value
+        let email = document.querySelector("#emailRegister").value
+        let pass = document.querySelector("#passRegister").value
 
         //Hacemos el post
         fetch('http://127.0.0.1:8000/new-user', {
@@ -40,12 +43,14 @@ export const Login = () => {
 
     const loginUsuario = () => {
         //Obtenemos los datos del fomrulario, hay que pasarlo como bearer y form data
-        let username = Document.querySelector("#user").value
-        let pass = Document.querySelector("#pass").value
+        let username = document.querySelector("#user").value
+        let pass = document.querySelector("#pass").value
 
-        let data = new FormData()
+        let data = new URLSearchParams()
         data.append("username", username)
         data.append("password", pass)
+
+        console.log(data)
 
         fetch('http://127.0.0.1:8000/login', {
             method : "POST",
@@ -54,7 +59,11 @@ export const Login = () => {
         })
         .then(response => response.json())
         .then(data => {
-            localStorage.set("currentUser", data)
+            console.log(data)
+            localStorage.setItem("currentUser", data)
+            setUser(data)
+            //Reload como un castillo de gordo porque no m está funcionando zustland como yo quiero
+            location.reload()
         })
     }
 
