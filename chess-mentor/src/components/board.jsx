@@ -8,12 +8,11 @@ import { endgameState } from "../logic/endgameGlobalState";
 import { invertirMatriz } from "../logic/logic";
 import { winnerState } from "../logic/endgameGlobalState";
 
-
 export const Board = () => {
     
     const dragCompleted = useRef(false);
     const destinyPos = useRef("")
-    const turnCounter = useRef(1)
+    const turnCounter = useRef(0)
     const movements = useRef("")
     const board = useBoardStore((state) => state.board)
     const setBoard = useBoardStore((state) => state.setBoard)
@@ -69,8 +68,18 @@ export const Board = () => {
                 newBoard[destination.x][destination.y] = piece
 
                 setBoard(newBoard)
-                turnCounter.current++
-                movements.current += ` ${piece}${content.pieceDestination} `
+
+                let counter = turnCounter.current + 1
+                turnCounter.current = counter
+                movements.current = {
+                    ...movements.current,
+                    [counter] : {
+                        "p" : piece,
+                        "d": destination.x + "" + destination.y,
+                        "o": origin.x + "" +origin.y
+                    }
+                }
+                console.log(movements.current)
 
                 let newChat = {
                     ...chat,
@@ -110,8 +119,18 @@ export const Board = () => {
                 newBoard[destination.x][destination.y] = piece
 
                 setBoard(newBoard)
-                turnCounter.current++
-                movements.current += ` ${piece}${destination.pieceDestination} `
+
+                let counter = turnCounter.current + 1
+                turnCounter.current = counter
+                movements.current = {
+                    ...movements.current,
+                    [counter] : {
+                        "p" : piece,
+                        "d": destination.x + "" + destination.y,
+                        "o": origin.x + "" +origin.y
+                    }
+                }
+                console.log(movements.current)
 
                 //calcular los nuevos moviemtos para las blancas
                 let newMoves = calculateAllPossibleMoves(newBoard)
@@ -122,11 +141,18 @@ export const Board = () => {
             })
             
         }else if (turn == "FINISHED"){
+            let user = JSON.parse(localStorage.getItem("currentUser")).username
+            let data = JSON.stringify({ "partida" : {"moves": movements.current, "winner": user}})
+            console.log(data)
             //hacer un post con la partida
+            fetch("http://127.0.0.1:8000/endgame", {
+                method : "POST",
+                body : data,
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(data => console.log(data))
             
         }
-
-
     }, [turn])
 
 
@@ -181,9 +207,20 @@ export const Board = () => {
                 
             })
 
-            let pieceStringForHistory = (draggedPiece.piece == "P") ? "" : draggedPiece.piece
-            let index = calcCoordinatesbyIndex(destinyPos.current.X,destinyPos.current.Y)
-            movements.current += `${turnCounter.current}. ${pieceStringForHistory}${index}`
+            let origin = initialDraggedPosition.X + "" + initialDraggedPosition.Y
+            let destination = destinyPos.current.X + "" + destinyPos.current.Y
+            
+            let counter = turnCounter.current + 1
+                turnCounter.current = counter
+                movements.current = {
+                    ...movements.current,
+                    [counter]: {
+                        "p" : draggedPiece.piece,
+                        "d": destination,
+                        "o": origin
+                    }
+                }
+                console.log(movements.current)
 
             //Control del enroque a posteriori, creo que es la forma más simple de controlarlo
                 //Primero enroque largo
@@ -241,9 +278,11 @@ export const Board = () => {
                 setEndgame("DROWNED")
                 setTurn("FINISHED")
                 setWinner("TIE")
+            }else{
+                setTurn("black")
             }
 
-            setTurn("black")
+            
             
         }else{
             let newBoard = [...board]

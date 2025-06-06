@@ -3,7 +3,7 @@ import json
 from networkx.algorithms.tree.mst import ALGORITHMS
 
 from models import ChatLogs, BoardHistory, EndGameData, Partida
-from dbModels import User, GameUser, Valoracion
+from dbModels import User, GameUser, Valoracion, Game
 from fastapi import FastAPI, Request, Body, HTTPException
 import uvicorn
 from database import get_db
@@ -19,7 +19,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_DURATION = 60
+ACCESS_TOKEN_DURATION = 60 * 60 * 60
 SECRET_KEY="d97ac5b0a6fd0f7c04a176a6ad59049318486a2a3f3a7d4db327d8f57451d9f2"
 
 crypt = CryptContext(schemes=['bcrypt'], deprecated="auto")
@@ -99,21 +99,58 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db : Session = Depe
     if not crypt.verify(form.password, db_user.contraseña):
         raise HTTPException(status_code=400, detail="Contraseña incorrecta")
 
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_DURATION)
+    expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_DURATION)
 
-    access_token = {"sub": db_user.username, "exp": expire, }
-    return {"access_token": jwt.encode(access_token, SECRET_KEY,algorithm=ALGORITHM), "token_type": "bearer"}
+    access_token = {"sub": db_user.username, "exp": int(expire.timestamp())}
+    return {"access_token": jwt.encode(access_token, SECRET_KEY,algorithm=ALGORITHM), "token_type": "bearer", "username": db_user.username}
 
 
 @app.get('/users/me')
-async def me(user: User = Depends(get_current_user)):
-    return {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
-    }
+async def me(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
 
+    id_user = user.id_usuario
 
+    user_games = get_partidas_por_usuario_join(db, id_user)
+
+    json_response = {}
+
+    for game in user_games:
+        game_json = {
+            "game": {
+                "movimientos" : game.movimientos,
+                "ganador": game.ganador,
+                "fecha": game.fecha
+            }
+        }
+
+        # obtenemos la valoración se la partida
+
+        game_valoration = (db.query(Valoracion).filter(Valoracion.id_partida == game.id_partida).first())
+        if game_valoration:
+            valoracion_json = {
+                "rating": game_valoration.rating,
+                "consejos": game_valoration.consejos
+            }
+            game_json["valoracion"] = valoracion_json
+        else:
+            valoracion_json = {
+                "rating": "Tu partida aún se está valorando",
+                "consejos": "Tu partida aún se está valorando"
+            }
+            game_json["valoracion"] = valoracion_json
+
+        json_response[game.id_partida] = game_json
+
+    return json_response
+
+def get_partidas_por_usuario_join(db: Session, id_usuario: int):
+    partidas = (
+        db.query(Game)
+        .join(GameUser, Game.id_partida == GameUser.c.id_partida)
+        .filter(GameUser.c.id_usuario == id_usuario)
+        .all()
+    )
+    return partidas
 
 # endpoint de chat
 @app.post('/chatbox-msg')
@@ -221,11 +258,12 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
                 "3. 'estimated_rating': An estimated ELO rating range (e.g., 1200-1400) that matches the level of play shown.\n\n"
                 "Only base your analysis on the moves provided, not on external knowledge or databases. "
                 "Be honest, constructive, and accurate. Assume standard time control unless otherwise specified."
+                "Do not any string other than the json, no intros like 'here is your json'"
             )
         },
         {
             "role": "user",
-            "content": endgame.moves
+            "content": json.dumps(game_data.partida.moves)
         }
     ]
 
@@ -237,28 +275,28 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
 
     # obtenemos el id del usuario
     db_user = db.query(User).filter(
-        (User.username == game_data.partida.username)
+        (User.username == game_data.partida.winner)
     ).first()
 
     if not db_user:
-        return "user not logged"
+        raise HTTPException(status_code=401, detail="User not logged in")
 
-    user_id = db_user.id
+    user_id = db_user.id_usuario
 
-    newPartida = Partida(
-        moves= game_data.partida.moves,
-        date= game_data.partida.date,
-        winner= game_data.partida.winner,
-        username= game_data.partida.username
+    newPartida = Game(
+        movimientos= json.dumps(game_data.partida.moves),
+        ganador= game_data.partida.winner,
+        fecha=datetime.now()
     )
 
     # creamos la partida en la base de datos
     db.add(newPartida)
     db.commit()
-    id_partida = db.refresh(newPartida)
+    db.refresh(newPartida)
+    game_id = newPartida.id_partida
 
     # insertamos en partida usuario
-    intermedia = GameUser(id_partida, user_id)
+    intermedia = GameUser(id_partida=game_id, id_usuario=user_id)
     db.add(intermedia)
     db.commit()
     db.refresh(intermedia)
@@ -267,18 +305,34 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(url, json=data_to_send)
+            response.raise_for_status()
 
-            try:
-                valoracion = Valoracion(response.content.estimated_rating, response.content.advice, id_partida)
-            except:
-                valoracion = Valoracion("ERROR", "ERROR", id_partida)
+            response_json = response.json()
+            content = response_json.get("message", {}).get("content", "{}")
+            content_json = json.loads(content)
+            valoracion = Valoracion(
+                rating=content_json.get("estimated_rating", "Por decidir"),
+                consejos=content_json.get("advice", "Su partida está siendo analizada. Vuelva a intentarlo más tarde"),
+                id_partida=game_id
+            )
 
             db.add(valoracion)
             db.commit()
             db.refresh(valoracion)
             return 'ok'
-        except httpx.HTTPStatusError as http_error:
-            return {"error": f"HTTP error occurred: {http_error}, Status Code: {http_error.response.status_code}"}
+
+        except Exception as e:
+            valoracion = Valoracion(
+                rating=1500,
+                consejos="Su partida está siendo analizada. Vuelva a intentarlo más tarde",
+                id_partida=game_id
+            )
+
+            db.add(valoracion)
+            db.commit()
+            db.refresh(valoracion)
+            return 'ok'
+
 
 
 if __name__ == "__main__":

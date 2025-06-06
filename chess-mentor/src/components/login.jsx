@@ -59,9 +59,9 @@ export const Login = () => {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data)
-            localStorage.setItem("currentUser", data)
-            setUser(data)
+            localStorage.setItem("currentUser", JSON.stringify(data))
+            setUser(JSON.stringify(data))
+            
             //Reload como un castillo de gordo porque no m está funcionando zustland como yo quiero
             location.reload()
         })

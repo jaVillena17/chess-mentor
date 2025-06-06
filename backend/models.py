@@ -11,14 +11,12 @@ class ChatLogs(BaseModel):
 
 class BoardHistory(BaseModel):
     current: List
-    history_moves: str
+    history_moves: Dict[str, Dict[str, str]]
     possible_moves : Dict[str, Dict]
 
 class Partida(BaseModel):
-    moves: str
-    date: str
+    moves: Dict[str, Dict[str, str]]
     winner: str
-    username : str
 
 class EndGameData(BaseModel):
     partida : Partida
