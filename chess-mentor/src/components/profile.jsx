@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react"
-import { UserSession } from "../logic/userGlobalState"
+import { GeneralUserStats } from "./userStats"
+import { UserGamesProfile } from "./profileGames"
 
 export const Profile = () => {
     let user = JSON.parse(localStorage.getItem("currentUser"))
     let token = user.access_token
 
-    const [userData, setUserData] = useState("")
+    const [userData, setUserData] = useState(false)
     let didAlreadyDoIt = useRef(false)
 
     useEffect(() => {
@@ -22,16 +23,24 @@ export const Profile = () => {
         .then(response => response.json())
         .then((data) => {
             setUserData(data)
-            console.log(userData)
         })
-        .catch(error => console.error("Error:", error));
-
-
+        .catch(error => console.log("Error:", error));
     }, [])
 
     return (
-        <main>
-            {JSON.stringify(userData)}
+        <main className="absolute bg-[url(./assets/login-background.png)] bg-contain bg-no-repeat bg-bottom t-0 right-0 w-[85%] h-[98vh] flex flex-wrap flex-col pl-20  pr-20 pt-10 ">
+            <section className="flex items-baseline  border-b-[#8b7925] border-t-0 border-r-0 border-l-0 border">
+                <h1 className="text-[#8b7925] font-bold">{user.username} /</h1>
+                <span className="text-white h-[15px] ml-3">{user.email}</span>
+                <button className="absolute right-20">Cerrar session</button>
+            </section>
+            
+
+            <GeneralUserStats stats={userData} user={user} />
+            
+            <h2 className="text-[#8b7925] mt-10 mb-10 text-4xl font-bold">Partidas</h2>
+            <UserGamesProfile games={userData}/> 
+        
         </main>
     )
 }

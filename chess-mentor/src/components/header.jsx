@@ -2,7 +2,7 @@ import '../static/css/header.css'
 import { Link } from 'react-router-dom'
 import { UserSession } from '../logic/userGlobalState'
 
-const views = ["Inicio", "Game", "FaQ", "Login"]
+const views = ["Inicio", "Game", "FaQ"]
 
 export const Header = () => {
     
@@ -27,6 +27,8 @@ export const Header = () => {
                 )
             })}
 
+            
+            {user == false || localStorage.getItem("currentUser") && <Link to={`/login`} key={"login"}>Login</Link>}
             {user != false || localStorage.getItem("currentUser") && <Link to={`/profile`} key={"profile"}>Mi Perfil</Link>}
         </nav>
     )

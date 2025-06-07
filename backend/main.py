@@ -102,7 +102,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db : Session = Depe
     expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_DURATION)
 
     access_token = {"sub": db_user.username, "exp": int(expire.timestamp())}
-    return {"access_token": jwt.encode(access_token, SECRET_KEY,algorithm=ALGORITHM), "token_type": "bearer", "username": db_user.username}
+    return {"access_token": jwt.encode(access_token, SECRET_KEY,algorithm=ALGORITHM), "token_type": "bearer", "username": db_user.username, "email": db_user.email}
 
 
 @app.get('/users/me')
@@ -173,26 +173,6 @@ async def chatbox_msg(chat : ChatLogs):
         }
         message_list.append(message_unit)
 
-    print(data_to_send)
-
-    '''data_to_send = {
-        "model": "llama3.2:latest",
-        "stream" : False,
-        "messages": [
-                    {"role": "system", "content": "Eres un jugador de ajedrez profesional, especializado en la enseñanza. Aprendiste de Magnus Carlsen y todo su conocimiento te fue incorporado. Tu pasión es enseñar a las nuevas generaciones como Magnus te enseñó a ti"},
-                    {"role": "user", "content": "hola"},
-    ]
-    }'''
-
-    '''data_to_send = {
-        "model": "llama3.2:latest",
-        "stream": False,
-        "messages": [
-            {"role": "system",
-             "content": "Eres una persona, te llamas Nipa y tienes TLP, presentas muchas inseguridades y crees que todos te odian. Terminas todos los mensajes diciendo PUI PUI, pides mucho perdón y haces ruidicos como mmmggmgi. No eres demasiado dramáticas, dices las cosas como si no quisieras decirlas"},
-            {"role": "user", "content": "Hola Nipa, soy tu nipo, cómo has dormido?"},
-        ]
-    }'''
 
     async with httpx.AsyncClient() as client:
         try:
