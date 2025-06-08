@@ -24,7 +24,7 @@ div.square{
 }
 
 div.square img{
-  width: 90%;
+  height: 90%;
 }
 
 div.square[row="0"]:nth-child(odd){

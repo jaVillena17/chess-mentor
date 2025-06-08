@@ -1,6 +1,5 @@
 import json
 
-from networkx.algorithms.tree.mst import ALGORITHMS
 
 from models import ChatLogs, BoardHistory, EndGameData, Partida
 from dbModels import User, GameUser, Valoracion, Game
@@ -146,8 +145,8 @@ async def me(user: User = Depends(get_current_user), db: Session = Depends(get_d
 def get_partidas_por_usuario_join(db: Session, id_usuario: int):
     partidas = (
         db.query(Game)
-        .join(GameUser, Game.id_partida == GameUser.c.id_partida)
-        .filter(GameUser.c.id_usuario == id_usuario)
+        .join(GameUser, Game.id_partida == GameUser.id_partida)
+        .filter(GameUser.id_usuario == id_usuario)
         .all()
     )
     return partidas
@@ -287,7 +286,7 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
             response = await client.post(url, json=data_to_send)
             response.raise_for_status()
 
-            response_json = response.json()
+            response_json = await  response.json()
             content = response_json.get("message", {}).get("content", "{}")
             content_json = json.loads(content)
             valoracion = Valoracion(
@@ -296,6 +295,7 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
                 id_partida=game_id
             )
 
+            print(valoracion)
             db.add(valoracion)
             db.commit()
             db.refresh(valoracion)

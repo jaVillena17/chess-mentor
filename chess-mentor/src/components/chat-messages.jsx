@@ -4,6 +4,8 @@ import { useChatStore } from '../logic/chatGlobalState'
 export const ChatMessages = () => {
 
     const chat = useChatStore((state) => state.chat)
+
+
     return (
         <div className="chat-display" id="chat-display">
             {    

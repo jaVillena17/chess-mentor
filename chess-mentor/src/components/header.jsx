@@ -28,7 +28,7 @@ export const Header = () => {
             })}
 
             
-            {user == false || localStorage.getItem("currentUser") && <Link to={`/login`} key={"login"}>Login</Link>}
+            {!user && !localStorage.getItem("currentUser") && <Link to={`/login`} key={"login"}>Login</Link>}
             {user != false || localStorage.getItem("currentUser") && <Link to={`/profile`} key={"profile"}>Mi Perfil</Link>}
         </nav>
     )

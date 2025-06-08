@@ -5,7 +5,6 @@ export const Message = ({timestamp, from, inputMsg}) => {
         //Decidir si pongo aquí la imagen del destinatario o lo pongo solo en el header del chat
         <span className={from == "user" ? "user-msg" : "llama-msg"}>
             <p>{inputMsg}</p>
-            <label>{timestamp}</label>
         </span>
     )
 }

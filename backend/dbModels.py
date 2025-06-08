@@ -17,12 +17,12 @@ class Game(Base):
     ganador = Column(String, unique=False, index=True)
     fecha = Column(Date, unique=False, index=True)
 
-GameUser = Table(
-    "Usuario_Partida",
-    Base.metadata,
-    Column("id_usuario", Integer, ForeignKey("usuario.id")),
-    Column("id_partida", Integer, ForeignKey("partida.id_partida")),
-)
+class GameUser(Base):
+    __tablename__ = "Usuario_Partida"
+
+    id_partida = Column(Integer, primary_key=True, index=True)
+    id_usuario = Column(Integer, primary_key=True, index=True)
+
 
 class Valoracion(Base):
     __tablename__ = "Valoracion"

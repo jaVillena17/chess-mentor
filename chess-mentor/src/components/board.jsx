@@ -28,6 +28,36 @@ export const Board = () => {
 
     const chat = useChatStore((state) => state.chat)
     const setChat = useChatStore((state) => state.setChat)
+
+    //Controlar la replay cuando se cargue la partida
+    useEffect(() => {
+        let replayBoard = JSON.parse(localStorage.getItem("currentBoard"))
+        let replayTurn = localStorage.getItem("replayTurn")
+
+        if (replayBoard){
+            setBoard(replayBoard)
+            setAllMoves(calculateAllPossibleMoves(replayBoard))
+            setTurn(replayTurn)
+            //calcular todos los movimientos del rival
+            if(replayTurn == "black"){
+                //Tenemos que valorar los nuevas casillas que ponen en peligro a nuestras piezas en base a nuestro nuevo movimiento
+            //le damos la vuelta a la matriz
+            let blackBoard = invertirMatriz(replayBoard)
+            //Calculamos movimientos para las piezas negras con dichos peligros
+            let blackOptions = calculateAllPossibleMoves(blackBoard)
+
+            blackMoves.current = blackOptions
+            }
+
+
+            //Borramos los registros
+            localStorage.removeItem("currentBoard")
+            localStorage.removeItem("replayTurn")
+        }
+    }, [])
+
+
+
     useEffect(() => {
         if(turn == "black"){
             fetch("http://127.0.0.1:8000/calc-move", {
@@ -79,7 +109,6 @@ export const Board = () => {
                         "o": origin.x + "" +origin.y
                     }
                 }
-                console.log(movements.current)
 
                 let newChat = {
                     ...chat,
@@ -130,7 +159,6 @@ export const Board = () => {
                         "o": origin.x + "" +origin.y
                     }
                 }
-                console.log(movements.current)
 
                 //calcular los nuevos moviemtos para las blancas
                 let newMoves = calculateAllPossibleMoves(newBoard)
@@ -141,17 +169,27 @@ export const Board = () => {
             })
             
         }else if (turn == "FINISHED"){
-            let user = JSON.parse(localStorage.getItem("currentUser")).username
-            let data = JSON.stringify({ "partida" : {"moves": movements.current, "winner": user}})
-            console.log(data)
-            //hacer un post con la partida
-            fetch("http://127.0.0.1:8000/endgame", {
-                method : "POST",
-                body : data,
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(data => console.log(data))
-            
+            //Solo guardamos la partida si no viene de una replay, para evitar problemas
+            let saveDB = localStorage.getItem("saveGame")
+
+            if (!saveDB){
+                console.log("sending")
+                let user = JSON.parse(localStorage.getItem("currentUser")).username
+                let data = JSON.stringify({ "partida" : {"moves": movements.current, "winner": user}})
+                console.log(data)
+                //hacer un post con la partida
+                fetch("http://127.0.0.1:8000/endgame", {
+                    method : "POST",
+                    body : data,
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(data => console.log(data))
+                .catch(
+                    console.log("ops, something wrong happened")
+                )
+            }else{
+                localStorage.removeItem("saveGame")
+            }
         }
     }, [turn])
 
@@ -220,7 +258,7 @@ export const Board = () => {
                         "o": origin
                     }
                 }
-                console.log(movements.current)
+
 
             //Control del enroque a posteriori, creo que es la forma más simple de controlarlo
                 //Primero enroque largo
