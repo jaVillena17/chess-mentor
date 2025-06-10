@@ -1,0 +1,107 @@
+@media (max-width: 1000px){
+
+    /* BODY */
+    body{
+        overflow-y: auto;
+        background-color:#2b2a2a;
+        height: 1000px;
+    }
+
+    /* HEADER */
+    nav.header-nav{
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        width: 100%;
+        height: auto;
+        justify-content: space-around;
+        position: absolute;
+        top: 0;
+    }
+
+    nav.header-nav div{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+    }
+
+    nav.header-nav div img{
+        width: 50%;
+        text-align: center;
+    }
+
+    nav.header-nav a{
+        display: block;
+        width: 20%;
+    }
+
+    /* MAIN CONTENT*/
+    main{
+        position: relative;
+        top: 250px;
+        clear: both;
+        display: flex;
+        width: 100%;
+        height: auto;
+        overflow-y: scroll;
+        background-image: none;
+        background-color:#2b2a2a;
+    }
+
+    main.login-page{
+        top: 50px;
+        background-image: none;
+        background-color:#2b2a2a;
+        height: auto;
+    }
+    main.game{
+        position: relative;
+        top:  75px;
+        width: 100vw;
+        flex-direction: column;
+        margin-left: 0px;
+        justify-content: space-around;
+    }
+
+    #display-header{
+        display: none;
+    }
+
+    div.flex-board{
+        width: 80vw;
+        height: 80vw;
+    }
+
+    div.chatbox{
+        margin-top: 50px;
+        width: 80vw;
+        height: 85vw;
+    }
+
+    div.chatbox button{
+        width: 10%;
+        height: 10%;
+    }
+
+    #faq{
+        position: relative;
+        top: 770px;
+    }
+
+    #profile{
+        top: 450px;
+    }
+
+    #profile-data{
+        width: 80%;
+    }
+
+    /* FOOTER*/
+    footer{
+        display: none;
+        width: 100%;
+        display: block;
+    }
+}

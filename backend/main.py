@@ -73,7 +73,7 @@ def create_user(user: db_schema.UserCreate, db : Session = Depends(get_db)):
         (User.username == user.username) | (User.email == user.email)
     ).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="El usuario ya existe en la base de datos")
+        raise HTTPException(status_code=400, detail="El usuario ya existe")
     new_user = User(
         username=user.username,
         email=user.email,
@@ -93,7 +93,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db : Session = Depe
     ).first()
 
     if not db_user:
-        raise HTTPException(status_code=400, detail="El usuario no existe en la base de datos")
+        raise HTTPException(status_code=400, detail="El usuario no existe")
 
     if not crypt.verify(form.password, db_user.contraseña):
         raise HTTPException(status_code=400, detail="Contraseña incorrecta")

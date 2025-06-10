@@ -4,6 +4,7 @@ import { GameHeader } from './gameHeader'
 import { WinnerModal } from './winnerModal'
 import { winnerState } from '../logic/endgameGlobalState'
 import confetti from "canvas-confetti"
+import { NotLoggedInModal } from './notlogged'
 
 export const Game = () => {
     let winner = winnerState((state) => state.winner)
@@ -14,6 +15,8 @@ export const Game = () => {
 
     return (
         <main className="game">
+            <NotLoggedInModal />
+
             <GameHeader />
             <Board />
             <Chatbox />

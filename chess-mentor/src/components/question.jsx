@@ -1,6 +1,6 @@
 export const Question = ({pregunta, respuesta}) => {
     return (
-        <div className="border border-[#8b7925] w-[20%] h-[150px] m-5 overflow-hidden text-center rounded-xl">
+        <div className="border border-[#8b7925] w-[80%] h-[150px] m-5 overflow-hidden text-center rounded-xl lg:w-[20%]">
             <div className="w-[100%] h-[100%] transform transition-transform duration-300 hover:translate-y-[-100%] ">
                 <span className="h-[100%] flex justify-center flex-col p-2">
                     <p className="font-extrabold text-xl">{pregunta}</p>

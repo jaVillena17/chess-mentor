@@ -5,7 +5,7 @@ export const GameHeader = () => {
     let endgame = endgameState(state => state.endgameStatus)
 
     return (
-        <div className="gameHeader">
+        <div className="gameHeader" id='display-header'>
             <p className='game-status'>{endgame}</p>
         </div>
     )

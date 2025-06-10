@@ -123,6 +123,17 @@ export const Board = () => {
                 setChat(newChat)
                 //set turn
                 setTurn("white")
+                new Audio("./assets/sound-effects/move-self.mp3").play()
+                //Comprobamos jaque
+                let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
+                let endGameCopy = ""
+                if (check){
+                    setEndgame("CHECK")
+                    endGameCopy = "CHECK"
+                }else{
+                    setEndgame("KEEP PLAYING")
+                    endGameCopy = "KEEP PLAYING"
+                }
             }).catch(() => {
                 let moveChosen = Object.entries(blackMoves.current)[0]
                 //we have to invert bow origin and destination
@@ -166,6 +177,18 @@ export const Board = () => {
                 setAllMoves(newMoves)
                 //set turn
                 setTurn("white")
+                new Audio("./assets/sound-effects/move-self.mp3").play()
+                //Comprobamos jaque
+                let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
+                let endGameCopy = ""
+                if (check){
+                    setEndgame("CHECK")
+                    endGameCopy = "CHECK"
+                }else{
+                    setEndgame("KEEP PLAYING")
+                    endGameCopy = "KEEP PLAYING"
+                }
+            
             })
             
         }else if (turn == "FINISHED"){
@@ -281,8 +304,8 @@ export const Board = () => {
             let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
             let endGameCopy = ""
             if (check){
-                setEndgame("check-black")
-                endGameCopy = "check-black"
+                setEndgame("CHECK")
+                endGameCopy = "CHECK"
             }else{
                 setEndgame("KEEP PLAYING")
                 endGameCopy = "KEEP PLAYING"
@@ -320,6 +343,7 @@ export const Board = () => {
                 setTurn("black")
             }
 
+            new Audio("./assets/sound-effects/move-self.mp3").play()
             
             
         }else{

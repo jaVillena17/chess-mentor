@@ -1,7 +1,7 @@
 
 export const GeneralUserStats = ({stats, user}) => {
     return (
-        <section className="flex flex-row w-[100%] justify-around mt-10">
+        <section id="profile-data" className="flex flex-col w-[100%] justify-around mt-10 lg:flex-row">
 
             <span className="">
                 <h2 className="text-white text-center font-extrabold text-2xl">Partidas Jugadas</h2>

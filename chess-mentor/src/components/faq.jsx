@@ -14,7 +14,7 @@ const preguntas = [
 ]
 export const Faq = () => {
     return (
-         <main className="text-white bg-[url(./assets/login-background.png)] bg-contain bg-no-repeat bg-bottom w-[85vw] h-[98vh] absolute right-0 flex flex-col items-center justify-center ">
+         <main id="faq"className="text-white bg-[url(./assets/login-background.png)] bg-contain bg-no-repeat bg-bottom w-[85vw] h-[98vh] relative top-0 right-0 flex flex-col items-center justify-center">
             <h1>FaQ</h1>
             <h3>¿Tienes alguna duda? Nosotros te la resolvemos</h3>
 

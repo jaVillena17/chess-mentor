@@ -9,7 +9,7 @@ export const UserGamesProfile = ({games}) => {
     const [game, setGame] = useState(false)
 
     return (
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between max-h-[480px] max-w-[85vw]">
             <div className="flex flex-row flex-wrap h-[100px]">
                 {gameList.map((partida, index) => {
                     return (

@@ -36,7 +36,7 @@ export const Profile = () => {
     }
 
     return (
-        <main className="absolute bg-[url(./assets/login-background.png)] bg-contain bg-no-repeat bg-bottom t-0 right-0 w-[85%] h-[98vh] flex flex-wrap flex-col pl-20  pr-20 pt-10 ">
+        <main id="profile" className="absolute bg-[url(./assets/login-background.png)] bg-contain bg-no-repeat bg-bottom t-0 right-0 w-[85%] h-[98vh] flex flex-wrap flex-col p-10 lg:pl-20 lg:pr-20 lg:pt-10">
             <section className="flex items-baseline  border-b-[#8b7925] border-t-0 border-r-0 border-l-0 border">
                 <h1 className="text-[#8b7925] font-bold">{user.username} /</h1>
                 <span className="text-white h-[15px] ml-3">{user.email}</span>

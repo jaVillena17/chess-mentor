@@ -6,6 +6,7 @@ import { Footer } from './components/footer'
 import { Index } from './components/index'
 import { Faq } from './components/faq'
 import { Profile } from './components/profile'
+import './static/css/responsive.css'
 
 export const App = () => {
 

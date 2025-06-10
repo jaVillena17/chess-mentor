@@ -1,12 +1,12 @@
 div.gameHeader{
-    border: 2px solid grey;
     width: 80%;
     height: 15vh;
     border-radius: 25px;
 }
 
 p.game-status{
-    color: #fff;
+    color: #8b7925;
     text-align: center;
     font-size: 5em;
+    
 }
