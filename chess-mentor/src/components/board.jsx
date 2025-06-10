@@ -7,9 +7,10 @@ import { calcCoordinatesbyIndex, translateCoordinates, checkCheck, calculateAllP
 import { endgameState } from "../logic/endgameGlobalState";
 import { invertirMatriz } from "../logic/logic";
 import { winnerState } from "../logic/endgameGlobalState";
+import { DiffGlobalState } from "../logic/difficultyGlobalState";
 
 export const Board = () => {
-    
+    let diff = DiffGlobalState((state) => state.diff)
     const dragCompleted = useRef(false);
     const destinyPos = useRef("")
     const turnCounter = useRef(0)
@@ -110,17 +111,21 @@ export const Board = () => {
                     }
                 }
 
-                let newChat = {
-                    ...chat,
-                    [Date.now()] : { "from_" :"assistant","text" : explanation},
+                if (diff == "easy"){
+                    let newChat = {
+                        ...chat,
+                        [Date.now()] : { "from_" :"assistant","text" : explanation},
+                    }
+
+                    //set chat
+                    setChat(newChat)
                 }
+                
 
                 //calcular los nuevos moviemtos para las blancas
                 let newMoves = calculateAllPossibleMoves(newBoard)
                 //Setear los movimientos de las blancas
                 setAllMoves(newMoves)
-                //set chat
-                setChat(newChat)
                 //set turn
                 setTurn("white")
                 new Audio("./assets/sound-effects/move-self.mp3").play()

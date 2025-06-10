@@ -1,9 +1,10 @@
-export const GamePreview = ({game, set}) => {
+export const GamePreview = ({game, set, setReview}) => {
     let userName = localStorage.getItem("currentUser").userName
     let isWin = game.game.winner == userName
 
     const handleOnClick = () => {
         set(JSON.parse(game.game.movimientos))
+        setReview(game.valoracion.consejos)
     }
 
     return (

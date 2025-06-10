@@ -136,3 +136,18 @@ div.chat-display {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
+
+.dificulty{
+    color: white;
+    padding: 5px;
+    margin-top: 15px;
+    width: 45%;
+    text-align: center;
+    background-color: #3b3a36;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.diff-selected{
+    background-color: #8b7925;
+}
