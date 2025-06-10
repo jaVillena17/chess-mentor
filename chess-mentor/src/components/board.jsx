@@ -126,13 +126,10 @@ export const Board = () => {
                 new Audio("./assets/sound-effects/move-self.mp3").play()
                 //Comprobamos jaque
                 let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
-                let endGameCopy = ""
                 if (check){
                     setEndgame("CHECK")
-                    endGameCopy = "CHECK"
                 }else{
                     setEndgame("KEEP PLAYING")
-                    endGameCopy = "KEEP PLAYING"
                 }
             }).catch(() => {
                 let moveChosen = Object.entries(blackMoves.current)[0]
@@ -180,13 +177,10 @@ export const Board = () => {
                 new Audio("./assets/sound-effects/move-self.mp3").play()
                 //Comprobamos jaque
                 let check = checkCheck({piece : draggedPiece.piece, coordinates : calcCoordinatesbyIndex(destinyPos.current.X, destinyPos.current.Y)}, newBoard)
-                let endGameCopy = ""
                 if (check){
                     setEndgame("CHECK")
-                    endGameCopy = "CHECK"
                 }else{
                     setEndgame("KEEP PLAYING")
-                    endGameCopy = "KEEP PLAYING"
                 }
             
             })
