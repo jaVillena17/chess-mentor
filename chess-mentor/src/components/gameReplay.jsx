@@ -47,7 +47,12 @@ export const GameReplay  = ({game}) => {
                     if(indexX == parseInt(origin[0]) && indexY == parseInt(origin[1])){
                         newRow.push((capturedPieces.current[previousTurn] ? capturedPieces.current[""+previousTurn] : 0))
                     }else if (indexX == parseInt(destination[0]) && indexY == parseInt(destination[1])){
-                        newRow.push(piece)
+                        if (piece == "Q" && parseInt(origin[0]) == 0){
+                            newRow.push("P")
+                        }else{
+                            newRow.push(piece)
+                        }
+                        
                     }else{
                         newRow.push(board[indexX][indexY])
                     }

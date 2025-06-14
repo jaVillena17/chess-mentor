@@ -56,10 +56,15 @@ export const Login = () => {
             .then(response => {
                 if (response.status == 200){
                     errorRegister.innerHTML = "El usuario se ha creado con éxito"
+                    return null
                 }else{
-                    errorRegister.innerHTML = "Oops, something went wrong. Try again later"
+                    
+                    return response.json()
                 }
             })
+            .then(data => {
+                if (data != null) errorRegister.innerHTML = data.detail
+                })
         }
 
     }
@@ -141,10 +146,10 @@ export const Login = () => {
                 <input type="text" name="user" id="user" required />
                 <label htmlFor="user">Contraseña</label>
                 <input type="password" name="pass" id="pass" required />
-                <button id="login-but" className='text-black' >Iniciar Sesión</button>
-                <p id="error-login" className='text-xs mt-2'></p>
+                <button id="login-but" className='text-black bg-[#8b7925]' >Iniciar Sesión</button>
+                <p id="error-login" className='text-xs mt-2 text-red-400'></p>
                 <hr />
-                <p>¿Todavía no tienes usuario?<br/>Haz click <span className='click-span'>aquí</span></p>
+                <p>¿Todavía no tienes usuario?<br/>Haz click <span className='click-span text-[#8b7925]'>aquí</span></p>
             </div>
 
             <div className="login-form display-none">
@@ -157,10 +162,10 @@ export const Login = () => {
 
                 <label htmlFor="passRegister">Contraseña</label>
                 <input type="password" name="pass" id="passRegister" required/>
-                <button id='register-but' className='text-black' >Registrar Usuario</button>
-                <p id="error-register" className='text-xs'></p>
+                <button id='register-but' className='text-black bg-[#8b7925]' >Registrar Usuario</button>
+                <p id="error-register" className='text-xs mt-2 text-red-400'></p>
                 <hr />
-                <p>¿Ya tienes un usuario?<br/>Haz click <span className='click-span'>aquí</span></p>
+                <p>¿Ya tienes un usuario?<br/>Haz click <span className='click-span text-[#8b7925]'>aquí</span></p>
             </div>
         </main>
     )

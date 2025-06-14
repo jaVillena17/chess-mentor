@@ -20,7 +20,7 @@ export const Game = () => {
             <GameHeader />
             <Board />
             <Chatbox />
-
+            
             <WinnerModal />
         </main>
     )

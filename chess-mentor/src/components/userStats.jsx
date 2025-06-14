@@ -1,5 +1,8 @@
 
 export const GeneralUserStats = ({stats, user}) => {
+    if (Object.keys(stats).length == 0){
+        stats = false
+    }
     return (
         <section id="profile-data" className="flex flex-col w-[100%] justify-around mt-10 lg:flex-row">
 

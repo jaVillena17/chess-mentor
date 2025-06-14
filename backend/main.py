@@ -16,6 +16,8 @@ from sqlalchemy.orm import Session
 from backend import models, db_schema
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from fallback_constants import fallback_comments, fallback_ratings
+import random
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_DURATION = 60 * 60 * 60
@@ -214,7 +216,7 @@ async def calc_move(board : BoardHistory):
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(url, json=data_to_send)
+            response = await client.post(url, json=data_to_send, timeout=20)
             return response.json()
         except httpx.HTTPStatusError as http_error:
             return {"error": f"HTTP error occurred: {http_error}, Status Code: {http_error.response.status_code}"}
@@ -283,7 +285,7 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
     # obtenemos la valoracion
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(url, json=data_to_send)
+            response = await client.post(url, json=data_to_send, timeout=20)
             response.raise_for_status()
 
             response_json = await  response.json()
@@ -302,9 +304,11 @@ async def endgame(game_data : EndGameData, db: Session =  Depends(get_db)):
             return 'ok'
 
         except Exception as e:
+            random_rating = random.randint(0,4)
+            random_comment = random.randint(0,4)
             valoracion = Valoracion(
-                rating=1500,
-                consejos="Su partida está siendo analizada. Vuelva a intentarlo más tarde",
+                rating=fallback_ratings[random_rating],
+                consejos=fallback_comments[random_comment],
                 id_partida=game_id
             )
 

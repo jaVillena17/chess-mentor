@@ -24,7 +24,7 @@ export const Board = () => {
     //const endGame = endgameState((state) => state.endgameStatus)
     const setEndgame = endgameState((state) => state.setEndgameStatus)
     const setWinner = winnerState((state) => state.setWinner)
-
+    const winner = winnerState((state) => state.winner)
     let blackMoves = useRef({})
 
     const chat = useChatStore((state) => state.chat)
@@ -61,6 +61,9 @@ export const Board = () => {
 
     useEffect(() => {
         if(turn == "black"){
+
+            console.log(blackMoves.current)
+
             fetch("http://127.0.0.1:8000/calc-move", {
             method : "POST",
             body : JSON.stringify({ "current" : board , "history_moves" : movements.current, "possible_moves": blackMoves.current}),
@@ -197,7 +200,7 @@ export const Board = () => {
             if (!saveDB){
                 console.log("sending")
                 let user = JSON.parse(localStorage.getItem("currentUser")).username
-                let data = JSON.stringify({ "partida" : {"moves": movements.current, "winner": user}})
+                let data = JSON.stringify({ "partida" : {"moves": movements.current, "winner": (winner == "YOU WON") ? user : "Empate"}})
                 console.log(data)
                 //hacer un post con la partida
                 fetch("http://127.0.0.1:8000/endgame", {
@@ -248,6 +251,8 @@ export const Board = () => {
             let initialDraggedPosition = translateCoordinates(draggedPiece.coordinates)
             let newBoard = [];
             //Copiamos vamos copiando los valores en el nuevo board
+            console.log(destinyPos.current)
+            console.log(draggedPiece.piece)
             board.forEach((row, indexX) => {
                 let newRow = []
 
@@ -257,12 +262,16 @@ export const Board = () => {
                     if(indexX == initialDraggedPosition.X && indexY == initialDraggedPosition.Y){
                         newRow.push(0)
                     }else if ((indexX == destinyPos.current.X && indexY == destinyPos.current.Y)){
-                        newRow.push(draggedPiece.piece)
+                        if (draggedPiece.piece == "P" && destinyPos.current.X == 0){
+                            newRow.push("Q")
+                        }
+                        else{
+                            newRow.push(draggedPiece.piece)
+                        }
                     }else{
                         newRow.push(board[indexX][indexY])
                     }
                 })
-
                 newBoard.push(newRow)
                 
             })
@@ -275,7 +284,7 @@ export const Board = () => {
                 movements.current = {
                     ...movements.current,
                     [counter]: {
-                        "p" : draggedPiece.piece,
+                        "p" : (draggedPiece.piece == "P" && destinyPos.current.X == 0) ? "Q" : draggedPiece.piece,
                         "d": destination,
                         "o": origin
                     }
@@ -330,7 +339,7 @@ export const Board = () => {
                 blackMovesCounter += moves.length
             }
 
-            if(blackMovesCounter == 0 && endGameCopy.includes("check")){
+            if(blackMovesCounter == 0 && endGameCopy.includes("CHECK")){
                 setEndgame("CHECKMATE")
                 setTurn("FINISHED")
                 setWinner("YOU WON")
@@ -346,6 +355,7 @@ export const Board = () => {
             
             
         }else{
+            //reset
             let newBoard = [...board]
             let  coordInit = translateCoordinates(draggedPiece.coordinates)
             newBoard[coordInit.X][coordInit.Y] = draggedPiece.piece 

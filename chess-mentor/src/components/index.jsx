@@ -6,7 +6,7 @@ export const Index = () => {
                 <p className="text-lg text-white max-w-xl mx-auto mb-6">
                 Aprende y mejora con la ayuda de una inteligencia artificial que analiza tus partidas y te guía jugada a jugada
                 </p><br /> <br /> <br />
-                <a href="/game" className="text-black bg-[#8b7925] rounded-xl px-10 py-4 mt-20 text-2xl font-extrabold border">Jugar YA</a>
+                <a href="/game" className="text-black bg-[#8b7925] rounded-xl px-10 py-4 mt-20 text-2xl font-extrabold border border-black border-3">Jugar YA</a>
             </section>
 
             <section id="caracteristicas" className="p-4 max-w-6xl mx-auto py-16 px-4 grid md:grid-cols-3 gap-8">
